@@ -1,0 +1,16 @@
+{
+    "Dependencies": [
+        {
+            "libname": "libJPEG",
+            "version": "9d"
+        },
+        {
+            "libname": "zlib",
+            "version": "1.2.11"
+        },
+        {
+            "libname": "libPNG",
+            "version": "1.6.37"
+        }
+    ]
+}
