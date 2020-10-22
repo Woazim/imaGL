@@ -78,9 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)3rd-parties/lpng;$(SolutionDir)3rd-parties/zlib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)3rd-parties/lpng;$(SolutionDir)3rd-parties/zlib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,8 +124,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BUILD_IMAGL;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -140,8 +140,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>BUILD_IMAGL;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,9 +152,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="imaGL.cpp" />
+    <ClCompile Include="loader_factory.cpp" />
+    <ClCompile Include="loader_png.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imaGL.h" />
+    <ClInclude Include="imagl_cfg.h" />
+    <ClInclude Include="loader.h" />
+    <ClInclude Include="loader_factory.h" />
+    <ClInclude Include="loader_png.h" />
+    <ClInclude Include="privateimagldata.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
