@@ -12,7 +12,7 @@ namespace ImaGL {
   CImaGL::CImaGL(std::string_view filename)
     : m_pData(new SPrivateImaGLData)
   {
-    std::ifstream is{ std::string(filename) };
+    std::ifstream is(std::string(filename), std::ios_base::in | std::ios_base::binary);
     if (!is.is_open())
       throw std::runtime_error("Unable to open file: " + std::string(filename));
 
@@ -25,7 +25,19 @@ namespace ImaGL {
     //In function of this, choose the right loader, then load file
     std::transform(strExt.begin(), strExt.end(), strExt.begin(), ::toupper);
     strExt += std::string(4 - strExt.length(), ' ');
-    *m_pData = CLoaderFactory::getLoader(MakeSig(strExt.c_str())).load(is);
+    *m_pData = CLoaderFactory::getLoader(CFileFormat(strExt.c_str())).load(is);
+    
+    computePixelSize();
+  }
+
+  CImaGL::CImaGL(std::istream& is, CFileFormat formatSig)
+  {
+    if(!is.good())
+      throw std::runtime_error("Invalid stream");
+
+    *m_pData = CLoaderFactory::getLoader(formatSig).load(is);
+
+    computePixelSize();
   }
 
   CImaGL::~CImaGL()

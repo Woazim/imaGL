@@ -6,17 +6,17 @@ namespace ImaGL {
   CLoaderFactory::CLoaderFactory()
   {
 #ifdef _HAS_LIBPNG
-    m_mapLoaders[IMAGL_MAKE_SIG("PNG ")] = &m_png;
+    m_mapLoaders["PNG "] = &m_png;
     m_setLoaders.insert(&m_png);
 #endif
   }
 
-  ILoader& CLoaderFactory::getLoader(uint32_t typeSig)
+  ILoader& CLoaderFactory::getLoader(CFileFormat ff)
   {
-    auto it = getInstance().m_mapLoaders.find(typeSig);
+    auto it = getInstance().m_mapLoaders.find(ff);
     if (it != getInstance().m_mapLoaders.end())
       return *(it->second);
-    throw loader_not_found(typeSig);
+    throw loader_not_found(ff);
   }
 
   SPrivateImaGLData CLoaderUnknown::load(std::istream& is)
