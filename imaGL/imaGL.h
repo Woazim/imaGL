@@ -26,7 +26,7 @@
   #pragma warning Unknown dynamic link import/export semantics.
 #endif
 
-#ifdef BUILD_IMAGL
+#ifdef ImaGL_EXPORTS
   #define IMAGL_API EXPORT
 #else
   #define IMAGL_API IMPORT

@@ -1,30 +1,29 @@
 // test.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
 //
+#define CATCH_CONFIG_MAIN // This tells Catch to provide a main() 
 
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <imaGL.h>
-#include <UnitTest++/UnitTest++.h>
+#include "../imaGL/imaGL.h"
+#include <catch2/catch.hpp>
 
 
-TEST(Openning_16bits_RGBA_PNG_file)
+TEST_CASE("Opening a 16 bits RGBA PNG file", "[test-16b]")
 {
   ImaGL::CImaGL img("test-16b.png");
 
-  REQUIRE
-  {
-    CHECK_EQUAL(256, img.width());
-    CHECK_EQUAL(256, img.height());
-    CHECK_EQUAL(ImaGL::CImaGL::EPixelFormat::RGBA, img.pixelformat());
-    CHECK_EQUAL(ImaGL::CImaGL::EPixelType::UShort, img.pixeltype());
-    CHECK_EQUAL(8, img.pixelsize());
-  }
+  CHECK(img.width() == 256);
+  CHECK(img.height() == 256);
+  CHECK(img.pixelformat() == ImaGL::CImaGL::EPixelFormat::RGBA);
+  CHECK(img.pixeltype() == ImaGL::CImaGL::EPixelType::UShort);
+  REQUIRE(img.pixelsize() == 8); //Here, it is required, otherwise next CHECK will crash
 
-    //read expected pixels data from test-16b.rgba
+  //read expected pixels data from test-16b.rgba
   std::ifstream ifs("test-16b.rgba");
   std::vector<unsigned short> pixels;
-  pixels.reserve(256 * 256 * 4);
+  const size_t nSize = img.width() * img.height() * 4;
+  pixels.reserve(nSize);
   while (!ifs.eof())
   {
     unsigned short val;
@@ -32,27 +31,38 @@ TEST(Openning_16bits_RGBA_PNG_file)
     if (ifs.good())
       pixels.push_back(val);
   }
+  //bool bArrayArEquals = true;
+  //const unsigned short* p1 = pixels.data();
+  //const unsigned short* p2 = reinterpret_cast<const unsigned short*>(img.pixels());
+  //size_t i = 0;
+  //for (size_t i = 0; i < nSize; ++i, ++p1, ++p2)
+  //{
+  //  if (*p1 != *p2)
+  //  {
+  //    bArrayArEquals = false;
+  //    break;
+  //  }
+  //}
+  //CHECK(bArrayArEquals);
 
-  CHECK_ARRAY_EQUAL(pixels.data(), reinterpret_cast<const unsigned short*>(img.pixels()), 256 * 256 * 4);
+  CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned short>(reinterpret_cast<const unsigned short*>(img.pixels()), reinterpret_cast<const unsigned short*>(img.pixels()) + nSize)));
 }
 
-TEST(Openning_8bits_RGBA_PNG_file)
+TEST_CASE("Opening a 8 bits RGBA PNG file", "[test-8b]")
 {
   ImaGL::CImaGL img("test-8b.png");
 
-  REQUIRE
-  {
-    CHECK_EQUAL(256, img.width());
-    CHECK_EQUAL(256, img.height());
-    CHECK_EQUAL(ImaGL::CImaGL::EPixelFormat::RGBA, img.pixelformat());
-    CHECK_EQUAL(ImaGL::CImaGL::EPixelType::UByte, img.pixeltype());
-    CHECK_EQUAL(4, img.pixelsize());
-  }
+  CHECK(img.width() == 256);
+  CHECK(img.height() == 256);
+  CHECK(img.pixelformat() == ImaGL::CImaGL::EPixelFormat::RGBA);
+  CHECK(img.pixeltype() == ImaGL::CImaGL::EPixelType::UByte);
+  REQUIRE(img.pixelsize() == 4); //Here, it is required, otherwise next CHECK will crash
 
-    //read expected pixels data from test-16b.rgba
+  //read expected pixels data from test-16b.rgba
   std::ifstream ifs("test-8b.rgba");
   std::vector<unsigned char> pixels;
-  pixels.reserve(256 * 256 * 4);
+  const size_t nSize = img.width() * img.height() * 4;
+  pixels.reserve(nSize);
   while (!ifs.eof())
   {
     unsigned int val; //use int here to avoid to consider char as real characters
@@ -61,13 +71,6 @@ TEST(Openning_8bits_RGBA_PNG_file)
       pixels.push_back(val);
   }
 
-  CHECK_ARRAY_EQUAL(pixels.data(), img.pixels(), 256 * 256 * 4);
-}
-
-int main()
-{
-  std::cout << "Test ImaGL\n";
-
-  return UnitTest::RunAllTests();
+  CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned char>(img.pixels(), img.pixels() + nSize)));
 }
 
