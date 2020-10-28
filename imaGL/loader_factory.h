@@ -32,9 +32,9 @@ namespace ImaGL {
   class CLoaderFactory
   {
     friend class CLoaderUnknown;
-#ifdef _HAS_LIBPNG
+#ifdef _HAS_PNG
     CLoaderPNG m_png;
-#endif // _HAS_LIBPNG
+#endif // _HAS_PNG
 
     //associative map between ff and loaders
     ::std::map<CFileFormat, ILoader*> m_mapLoaders;

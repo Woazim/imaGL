@@ -3,20 +3,27 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-execute_process(COMMAND "conan" "install" "${CMAKE_BINARY_DIR}/.." "-s" "build_type=Release")
-execute_process(COMMAND "conan" "install" "${CMAKE_BINARY_DIR}/.." "-s" "build_type=Debug")
 
 project ("ImaGL")
 
 option(BUILD_TEST "Build test program" OFF)
 option(STATIC_LIB "Build ImaGL as a static library" OFF)
+option(SUPPORT_PNG "Build ImaGL with PNG file format support" ON)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo_multi.cmake)
-conan_basic_setup()
+execute_process(COMMAND "conan" "install" "${CMAKE_SOURCE_DIR}" "-s" "build_type=Release")
+execute_process(COMMAND "conan" "install" "${CMAKE_SOURCE_DIR}" "-s" "build_type=Debug")
+include(${CMAKE_BINARY_DIR}/conan_paths.cmake)
+
+if(SUPPORT_PNG)
+	find_package(PNG)
+endif()
+
+set(CMAKE_DEBUG_POSTFIX d)
 
 # Incluez les sous-projets.
 add_subdirectory ("ImaGL")
 
 if(BUILD_TEST)
+	find_package(Catch2)
 	add_subdirectory ("test")
 endif()

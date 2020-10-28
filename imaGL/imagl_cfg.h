@@ -1,3 +1,3 @@
 #pragma once
 
-#define _HAS_LIBPNG 1
+//#define _HAS_LIBPNG 1

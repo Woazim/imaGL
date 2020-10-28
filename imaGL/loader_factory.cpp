@@ -5,7 +5,7 @@ namespace ImaGL {
 
   CLoaderFactory::CLoaderFactory()
   {
-#ifdef _HAS_LIBPNG
+#ifdef _HAS_PNG
     m_mapLoaders["PNG "] = &m_png;
     m_setLoaders.insert(&m_png);
 #endif

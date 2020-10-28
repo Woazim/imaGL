@@ -2,7 +2,7 @@
 #include "loader.h"
 #include "imagl_cfg.h"
 
-#ifdef _HAS_LIBPNG
+#ifdef _HAS_PNG
 
 namespace ImaGL {
 

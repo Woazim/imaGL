@@ -1,5 +1,5 @@
 #include "loader_png.h"
-#ifdef _HAS_LIBPNG
+#ifdef _HAS_PNG
 
 #include "privateimagldata.h"
 #include <png.h>
