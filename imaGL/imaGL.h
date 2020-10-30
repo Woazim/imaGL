@@ -4,7 +4,9 @@
 #include <string_view>
 #include <iostream>
 #include <memory>
+#ifdef __cpp_impl_three_way_comparison
 #include <compare>
+#endif
 
 #if defined(_MSC_VER)
   //  Microsoft 
@@ -81,8 +83,13 @@ namespace ImaGL {
     explicit operator ::std::string() {
       return ::std::string(static_cast<const char*>(*this), 4);
     }
-
+#ifdef __cpp_impl_three_way_comparison
     std::strong_ordering operator<=>(const CFileFormat&) const = default;
+#else
+    bool operator<(const CFileFormat& ff) const { return m_sig < ff.m_sig; }
+    bool operator>(const CFileFormat& ff) const { return m_sig > ff.m_sig; }
+    bool operator==(const CFileFormat& ff) const { return m_sig == ff.m_sig; }
+#endif
   };
 
   class IMAGL_API CImaGL
@@ -229,21 +236,21 @@ namespace ImaGL {
     inline TYPE comp3() const;
   };
 
-  template<> unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_3_3_2>::comp1() const { return pixel >> 5; }
-  template<> unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_3_3_2>::comp2() const { return (pixel & 0b00011100) >> 2; }
-  template<> unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_3_3_2>::comp3() const { return pixel & 0b00000011; }
+  template<> inline unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_3_3_2>::comp1() const { return pixel >> 5; }
+  template<> inline unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_3_3_2>::comp2() const { return (pixel & 0b00011100) >> 2; }
+  template<> inline unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_3_3_2>::comp3() const { return pixel & 0b00000011; }
 
-  template<> unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_2_3_3_Rev>::comp1() const { return pixel & 0b00000111; }
-  template<> unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_2_3_3_Rev>::comp2() const { return (pixel & 0b00111000) >> 3; }
-  template<> unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_2_3_3_Rev>::comp3() const { return pixel >> 6; }
+  template<> inline unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_2_3_3_Rev>::comp1() const { return pixel & 0b00000111; }
+  template<> inline unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_2_3_3_Rev>::comp2() const { return (pixel & 0b00111000) >> 3; }
+  template<> inline unsigned char PackedPixel3Comp<unsigned char, CImaGL::EPixelType::UByte_2_3_3_Rev>::comp3() const { return pixel >> 6; }
 
-  template<> unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5>::comp1() const { return pixel >> 11; }
-  template<> unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5>::comp2() const { return (pixel & 0b0000011111100000) >> 5; }
-  template<> unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5>::comp3() const { return pixel & 0b0000000000011111; }
+  template<> inline unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5>::comp1() const { return pixel >> 11; }
+  template<> inline unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5>::comp2() const { return (pixel & 0b0000011111100000) >> 5; }
+  template<> inline unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5>::comp3() const { return pixel & 0b0000000000011111; }
 
-  template<> unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5_Rev>::comp1() const { return pixel & 0b0000000000011111; }
-  template<> unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5_Rev>::comp2() const { return (pixel & 0b0000011111100000) >> 5; }
-  template<> unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5_Rev>::comp3() const { return pixel >> 11; }
+  template<> inline unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5_Rev>::comp1() const { return pixel & 0b0000000000011111; }
+  template<> inline unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5_Rev>::comp2() const { return (pixel & 0b0000011111100000) >> 5; }
+  template<> inline unsigned short PackedPixel3Comp<unsigned short, CImaGL::EPixelType::UShort_5_6_5_Rev>::comp3() const { return pixel >> 11; }
 
   template<typename TYPE, CImaGL::EPixelType PACKING>
   class PackedPixel4Comp
@@ -256,44 +263,44 @@ namespace ImaGL {
     inline TYPE comp4() const;
   };
 
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp1() const { return pixel >> 12; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp2() const { return (pixel & 0b0000111100000000) >> 8; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp3() const { return (pixel & 0b0000000011110000) >> 4; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp4() const { return (pixel & 0b0000000000001111); }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp1() const { return pixel >> 12; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp2() const { return (pixel & 0b0000111100000000) >> 8; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp3() const { return (pixel & 0b0000000011110000) >> 4; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4>::comp4() const { return (pixel & 0b0000000000001111); }
 
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp1() const { return (pixel & 0b0000000000001111); }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp2() const { return (pixel & 0b0000000011110000) >> 4; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp3() const { return (pixel & 0b0000111100000000) >> 8; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp4() const { return pixel >> 12; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp1() const { return (pixel & 0b0000000000001111); }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp2() const { return (pixel & 0b0000000011110000) >> 4; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp3() const { return (pixel & 0b0000111100000000) >> 8; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_4_4_4_4_Rev>::comp4() const { return pixel >> 12; }
 
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp1() const { return pixel >> 11; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp2() const { return (pixel & 0b0000011111000000) >> 6; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp3() const { return (pixel & 0b0000000000111110) >> 1; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp4() const { return (pixel & 0b0000000000000001); }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp1() const { return pixel >> 11; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp2() const { return (pixel & 0b0000011111000000) >> 6; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp3() const { return (pixel & 0b0000000000111110) >> 1; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_5_5_5_1>::comp4() const { return (pixel & 0b0000000000000001); }
 
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp1() const { return (pixel & 0b0000000000011111); }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp2() const { return (pixel & 0b0000001111100000) >> 5; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp3() const { return (pixel & 0b0111110000000000) >> 10; }
-  template<> unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp4() const { return pixel >> 15; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp1() const { return (pixel & 0b0000000000011111); }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp2() const { return (pixel & 0b0000001111100000) >> 5; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp3() const { return (pixel & 0b0111110000000000) >> 10; }
+  template<> inline unsigned short PackedPixel4Comp<unsigned short, CImaGL::EPixelType::UShort_1_5_5_5_Rev>::comp4() const { return pixel >> 15; }
 
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp1() const { return pixel >> 24; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp2() const { return (pixel & 0b00000000111111110000000000000000U) >> 16; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp3() const { return (pixel & 0b00000000000000001111111100000000U) >> 8; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp4() const { return (pixel & 0b00000000000000000000000011111111U); }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp1() const { return pixel >> 24; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp2() const { return (pixel & 0b00000000111111110000000000000000U) >> 16; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp3() const { return (pixel & 0b00000000000000001111111100000000U) >> 8; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8>::comp4() const { return (pixel & 0b00000000000000000000000011111111U); }
 
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp1() const { return (pixel & 0b00000000000000000000000011111111U); }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp2() const { return (pixel & 0b00000000000000001111111100000000U) >> 8; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp3() const { return (pixel & 0b00000000111111110000000000000000U) >> 16; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp4() const { return pixel >> 24; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp1() const { return (pixel & 0b00000000000000000000000011111111U); }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp2() const { return (pixel & 0b00000000000000001111111100000000U) >> 8; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp3() const { return (pixel & 0b00000000111111110000000000000000U) >> 16; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_8_8_8_8_Rev>::comp4() const { return pixel >> 24; }
 
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp1() const { return pixel >> 22; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp2() const { return (pixel & 0b00000000001111111111000000000000U) >> 12; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp3() const { return (pixel & 0b00000000000000000000111111111100U) >> 2; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp4() const { return (pixel & 0b00000000000000000000000000000011U); }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp1() const { return pixel >> 22; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp2() const { return (pixel & 0b00000000001111111111000000000000U) >> 12; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp3() const { return (pixel & 0b00000000000000000000111111111100U) >> 2; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_10_10_10_2>::comp4() const { return (pixel & 0b00000000000000000000000000000011U); }
 
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp1() const { return (pixel & 0b00000000000000000000001111111111U); }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp2() const { return (pixel & 0b00000000000011111111110000000000U) >> 10; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp3() const { return (pixel & 0b00111111111100000000000000000000U) >> 20; }
-  template<> unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp4() const { return pixel >> 30; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp1() const { return (pixel & 0b00000000000000000000001111111111U); }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp2() const { return (pixel & 0b00000000000011111111110000000000U) >> 10; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp3() const { return (pixel & 0b00111111111100000000000000000000U) >> 20; }
+  template<> inline unsigned int PackedPixel4Comp<unsigned int, CImaGL::EPixelType::UInt_2_10_10_10_Rev>::comp4() const { return pixel >> 30; }
 
 }

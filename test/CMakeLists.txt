@@ -13,11 +13,11 @@ endif()
 
 set_property(TARGET test PROPERTY CXX_STANDARD 20)
 
-if(TARGET PNG::PNG)
-    target_link_libraries(test PNG::PNG)
+if(TARGET CONAN_PKG::libpng)
+    target_link_libraries(test CONAN_PKG::libpng)
 endif()
-if(TARGET Catch2::Catch2)
-    target_link_libraries(test Catch2::Catch2)
+if(TARGET CONAN_PKG::catch2)
+    target_link_libraries(test CONAN_PKG::catch2)
 endif()
 
 target_link_libraries(test libImaGL)
@@ -30,4 +30,6 @@ add_custom_command(TARGET test POST_BUILD
                        "${CMAKE_CURRENT_SOURCE_DIR}/test-8b.rgba"
                        $<TARGET_FILE:libImaGL>
                            $<TARGET_FILE_DIR:test>)
+
+set_property(TARGET test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:test>)
 # TODO: Ajoutez des tests et installez des cibles si nécessaire.

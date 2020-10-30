@@ -3,6 +3,7 @@
 
 #include "privateimagldata.h"
 #include <png.h>
+#include <cstring>
 
 namespace ImaGL {
 
@@ -11,7 +12,7 @@ namespace ImaGL {
     png_image image;
 
     /* Only the image structure version number needs to be set. */
-    memset(&image, 0, sizeof image);
+    std::memset(&image, 0, sizeof image);
     image.version = PNG_IMAGE_VERSION;
 
     //Goes to the end of the stream
@@ -68,6 +69,7 @@ namespace ImaGL {
       /* Failed to read the first argument: */
       throw bad_format(image.message);
 
+    return {};
   }
 
 }

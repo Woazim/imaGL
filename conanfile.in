@@ -3,8 +3,7 @@ libpng/[>=1.6.37]
 catch2/[>=2.13.2]
 
 [generators]
-cmake_paths
-cmake_find_package
+cmake
 
 [options]
 libpng:shared=False

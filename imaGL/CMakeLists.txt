@@ -15,9 +15,9 @@ else()
 endif()
 set(OUTPUT_NAME imaGL)
 
-if(TARGET PNG::PNG)
+if(TARGET CONAN_PKG::libpng)
     add_compile_definitions(_HAS_PNG)
-    target_link_libraries (libImaGL PNG::PNG)
+    target_link_libraries (libImaGL CONAN_PKG::libpng)
 endif()
 
 file(GLOB ImaGL_SRC "*.h" "*.cpp")
