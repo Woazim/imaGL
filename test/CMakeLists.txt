@@ -1,35 +1,37 @@
 cmake_minimum_required (VERSION 3.8)
 
-project("test")
+project("testProg")
 
 # Ajoutez une source à l'exécutable de ce projet.
-add_executable (test)
-file(GLOB test_SRC "*.h" "*.cpp")
-target_sources(test PRIVATE ${test_SRC})
+add_executable (testProg)
+file(GLOB testProg_SRC "*.h" "*.cpp")
+target_sources(testProg PRIVATE ${testProg_SRC})
 
 if(STATIC_LIB)
     add_compile_definitions(IMAGL_STATIC)
 endif()
 
-set_property(TARGET test PROPERTY CXX_STANDARD 20)
+set_property(TARGET testProg PROPERTY CXX_STANDARD 20)
 
 if(TARGET CONAN_PKG::libpng)
-    target_link_libraries(test CONAN_PKG::libpng)
+    target_link_libraries(testProg CONAN_PKG::libpng)
 endif()
 if(TARGET CONAN_PKG::catch2)
-    target_link_libraries(test CONAN_PKG::catch2)
+    target_link_libraries(testProg CONAN_PKG::catch2)
 endif()
 
-target_link_libraries(test libImaGL)
+target_link_libraries(testProg libImaGL)
 
-add_custom_command(TARGET test POST_BUILD
+add_custom_command(TARGET testProg POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
                        "${CMAKE_CURRENT_SOURCE_DIR}/test-16b.png"
                        "${CMAKE_CURRENT_SOURCE_DIR}/test-16b.rgba"
                        "${CMAKE_CURRENT_SOURCE_DIR}/test-8b.png"
                        "${CMAKE_CURRENT_SOURCE_DIR}/test-8b.rgba"
                        $<TARGET_FILE:libImaGL>
-                           $<TARGET_FILE_DIR:test>)
+                           $<TARGET_FILE_DIR:testProg>)
 
-set_property(TARGET test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:test>)
+set_property(TARGET testProg PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+
+add_test(NAME test_ImaGL COMMAND testProg WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 # TODO: Ajoutez des tests et installez des cibles si nécessaire.

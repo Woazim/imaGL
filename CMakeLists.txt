@@ -3,7 +3,7 @@
 
 project ("ImaGL")
 
-option(BUILD_TEST "Build test program" OFF)
+option(BUILD_TESTING "Build test program" OFF)
 option(STATIC_LIB "Build ImaGL as a static library" OFF)
 option(SUPPORT_PNG "Build ImaGL with PNG file format support" ON)
 
@@ -23,7 +23,7 @@ foreach(CONANFILE_LINE ${CONANFILE})
 	endif()
 	#Test for catch2 (for testing)
 	string(REGEX MATCH [[^.*catch2]] THISLINE ${CONANFILE_LINE})
-	if(THISLINE AND NOT BUILD_TEST)
+	if(THISLINE AND NOT BUILD_TESTING)
 		string(PREPEND CONANFILE_LINE "# ")
 	endif()
 
@@ -59,7 +59,8 @@ set(CMAKE_DEBUG_POSTFIX d)
 # Incluez les sous-projets.
 add_subdirectory ("ImaGL")
 
-if(BUILD_TEST)
+if(BUILD_TESTING)
 	#find_package(Catch2 REQUIRED CONFIG)
+	enable_testing()
 	add_subdirectory ("test")
 endif()
