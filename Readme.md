@@ -46,9 +46,9 @@ Pixel format and type are choosen to be as close as the one in the file, with ne
 
 ### Prerequisites
 
-To compile, you must have conan installed (see conan.io). It will install all needed dependencies.
+To compile, you must have conan installed (see [conan.io](https://conan.io)). It will install all needed dependencies.
 
-For your information, ImaGL can depend on (not necessarily):
+For your information, ImaGL can depend on (not necessarily, see below):
 
 - libpng 1.6.37+
 - catch2 2.13.2+
