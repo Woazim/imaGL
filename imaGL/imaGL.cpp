@@ -115,10 +115,10 @@ namespace ImaGL {
   }
 
   const unsigned char* CImaGL::pixels()      const { return m_pData->m_vRawData.data(); }
-  int                   CImaGL::width()       const { return m_pData->m_nWidth; }
-  int                   CImaGL::height()      const { return m_pData->m_nHeight; }
-  CImaGL::EPixelFormat  CImaGL::pixelformat() const { return m_pData->m_PixelFormat; }
-  CImaGL::EPixelType    CImaGL::pixeltype()   const { return m_pData->m_PixelType; }
-  int                   CImaGL::pixelsize()   const { return m_nPixelSize; }
+  size_t               CImaGL::width()       const { return m_pData->m_nWidth; }
+  size_t               CImaGL::height()      const { return m_pData->m_nHeight; }
+  CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData->m_PixelFormat; }
+  CImaGL::EPixelType   CImaGL::pixeltype()   const { return m_pData->m_PixelType; }
+  size_t               CImaGL::pixelsize()   const { return m_nPixelSize; }
 
 }

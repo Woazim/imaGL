@@ -5,11 +5,6 @@
 
 namespace ImaGL {
 
-  class bad_format : public ::std::runtime_error {
-  public:
-    bad_format(const char* message) : ::std::runtime_error(message) {}
-  };
-
   struct SPrivateImaGLData;
 
   class ILoader

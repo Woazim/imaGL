@@ -31,21 +31,19 @@ TEST_CASE("Opening a 16 bits RGBA PNG file", "[test-16b]")
     if (ifs.good())
       pixels.push_back(val);
   }
-  //bool bArrayArEquals = true;
-  //const unsigned short* p1 = pixels.data();
-  //const unsigned short* p2 = reinterpret_cast<const unsigned short*>(img.pixels());
-  //size_t i = 0;
-  //for (size_t i = 0; i < nSize; ++i, ++p1, ++p2)
-  //{
-  //  if (*p1 != *p2)
-  //  {
-  //    bArrayArEquals = false;
-  //    break;
-  //  }
-  //}
-  //CHECK(bArrayArEquals);
+  const unsigned short* p1 = pixels.data();
+  const unsigned short* p2 = reinterpret_cast<const unsigned short*>(img.pixels());
+  size_t i = 0;
+  for (i = 0; i < nSize; ++i, ++p1, ++p2)
+  {
+    if (*p1 != *p2)
+    {
+      break;
+    }
+  }
+  CHECK(i == nSize);
 
-  CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned short>(reinterpret_cast<const unsigned short*>(img.pixels()), reinterpret_cast<const unsigned short*>(img.pixels()) + nSize)));
+  //CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned short>(reinterpret_cast<const unsigned short*>(img.pixels()), reinterpret_cast<const unsigned short*>(img.pixels()) + nSize)));
 }
 
 TEST_CASE("Opening a 8 bits RGBA PNG file", "[test-8b]")
@@ -58,7 +56,7 @@ TEST_CASE("Opening a 8 bits RGBA PNG file", "[test-8b]")
   CHECK(img.pixeltype() == ImaGL::CImaGL::EPixelType::UByte);
   REQUIRE(img.pixelsize() == 4); //Here, it is required, otherwise next CHECK will crash
 
-  //read expected pixels data from test-16b.rgba
+  //read expected pixels data from test-8b.rgba
   std::ifstream ifs("test-8b.rgba");
   std::vector<unsigned char> pixels;
   const size_t nSize = img.width() * img.height() * 4;
@@ -71,6 +69,16 @@ TEST_CASE("Opening a 8 bits RGBA PNG file", "[test-8b]")
       pixels.push_back(val);
   }
 
-  CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned char>(img.pixels(), img.pixels() + nSize)));
+  const unsigned char* p1 = pixels.data();
+  const unsigned char* p2 = img.pixels();
+  size_t i = 0;
+  for (i = 0; i < nSize; ++i, ++p1, ++p2)
+  {
+    if (*p1 != *p2)
+    {
+      break;
+    }
+  }
+  CHECK(i == nSize);
 }
 

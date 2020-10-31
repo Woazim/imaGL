@@ -92,6 +92,25 @@ namespace ImaGL {
 #endif
   };
 
+  class bad_format : public ::std::runtime_error {
+  public:
+    bad_format(const char* message) : ::std::runtime_error(message) {}
+  };
+
+  class loader_not_found : public ::std::runtime_error {
+  public:
+    loader_not_found(CFileFormat ff) :
+      ::std::runtime_error("Loader for type " + static_cast<std::string>(ff) + " not found!")
+    {}
+  };
+
+  class compatible_loader_not_found : public ::std::runtime_error {
+  public:
+    compatible_loader_not_found() :
+      ::std::runtime_error("Compatbile loader has not been found!")
+    {}
+  };
+
   class IMAGL_API CImaGL
   {
   public:
@@ -142,11 +161,11 @@ namespace ImaGL {
     ~CImaGL();
 
     const unsigned char*  pixels()      const;
-    int                   width()       const;
-    int                   height()      const;
+    size_t                width()       const;
+    size_t                height()      const;
     EPixelFormat          pixelformat() const;
     EPixelType            pixeltype()   const;
-    int                   pixelsize()   const;
+    size_t                pixelsize()   const;
 
     void rescale(int width, int height);
     void rescaleToNextPowerOfTwo();

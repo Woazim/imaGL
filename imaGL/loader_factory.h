@@ -7,20 +7,6 @@
 
 namespace ImaGL {
 
-  class loader_not_found : public ::std::runtime_error {
-  public:
-    loader_not_found(CFileFormat ff) :
-      ::std::runtime_error("Loader for type " + static_cast<std::string>(ff) + " not found!")
-    {}
-  };
-
-  class compatible_loader_not_found : public ::std::runtime_error {
-  public:
-    compatible_loader_not_found() :
-      ::std::runtime_error("Compatbile loader has not been found!")
-    {}
-  };
-
   //Special loader when type is unknown
   class CLoaderUnknown : public ILoader
   {
