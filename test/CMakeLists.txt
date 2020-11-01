@@ -33,5 +33,6 @@ add_custom_command(TARGET testProg POST_BUILD
 
 set_property(TARGET testProg PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
-add_test(NAME test_ImaGL COMMAND testProg WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_16b_RGBA_PNG COMMAND testProg [read-16b-rgba] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_8b_RGBA_PNG COMMAND testProg [read-8b-rgba] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 # TODO: Ajoutez des tests et installez des cibles si nécessaire.

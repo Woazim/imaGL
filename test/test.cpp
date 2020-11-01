@@ -9,7 +9,7 @@
 #include <catch2/catch.hpp>
 
 
-TEST_CASE("Opening a 16 bits RGBA PNG file", "[test-16b]")
+TEST_CASE("Opening a 16 bits RGBA PNG file", "[read-16b-rgba]")
 {
   ImaGL::CImaGL img("test-16b.png");
 
@@ -46,7 +46,7 @@ TEST_CASE("Opening a 16 bits RGBA PNG file", "[test-16b]")
   //CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned short>(reinterpret_cast<const unsigned short*>(img.pixels()), reinterpret_cast<const unsigned short*>(img.pixels()) + nSize)));
 }
 
-TEST_CASE("Opening a 8 bits RGBA PNG file", "[test-8b]")
+TEST_CASE("Opening a 8 bits RGBA PNG file", "[read-8b-rgba]")
 {
   ImaGL::CImaGL img("test-8b.png");
 
