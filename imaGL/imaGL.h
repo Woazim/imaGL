@@ -171,6 +171,8 @@ namespace ImaGL {
     void rescaleToNextPowerOfTwo();
   };
 
+  size_t computePixelSize(CImaGL::EPixelFormat pf, CImaGL::EPixelType pt);
+
   inline std::ostream& operator<<(std::ostream& os, const CImaGL::EPixelFormat& pf)
   {
     switch (pf)
