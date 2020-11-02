@@ -12,6 +12,7 @@
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+CMakeSettings.json
 
 # Build results
 [Dd]ebug/
@@ -26,6 +27,8 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+build/
+out/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

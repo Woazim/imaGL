@@ -1,0 +1,32 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+  - windows
+
+dist: focal
+
+arch: amd64
+
+compiler:
+  - clang
+  - gcc
+
+git:
+  depth: false
+
+before_script:
+  - sudo pip3 install conan
+
+script:
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+  - cmake --build . --config Release
+
+jobs:
+  include:
+    - stage: test
+      before_script:
+      script: cd build && ctest -C Release
