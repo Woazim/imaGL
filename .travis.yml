@@ -1,22 +1,6 @@
 language: cpp
 
-os:
-  - linux
-  - osx
-  - windows
-
-dist: focal
-
-arch: amd64
-
-compiler:
-  - clang
-  - gcc
-
-git:
-  depth: false
-
-before_script:
+install:
   - sudo pip3 install conan
 
 script:
@@ -25,8 +9,34 @@ script:
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
   - cmake --build . --config Release
 
-jobs:
+dist: focal
+
+arch: amd64
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+matrix:
   include:
-    - stage: test
-      before_script:
-      script: cd build && ctest -C Release
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-9.3
+      env:
+        - MATRIX_EVAL="CC=gcc-9.3 && CXX=g++-9.3"
+
+    - os: linux
+      compiler: clang
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-11.0.3
+          packages:
+            - clang-11.0.3
+      env:
+        - MATRIX_EVAL="CC=clang-11.0.3 && CXX=clang++-11.0.3"
