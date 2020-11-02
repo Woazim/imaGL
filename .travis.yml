@@ -25,9 +25,9 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
-            - g++-9.3
+            - gcc-9
       env:
-        - MATRIX_EVAL="CC=gcc-9.3 && CXX=g++-9.3"
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
 
     - os: linux
       compiler: clang
@@ -35,8 +35,8 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-11.0.3
+            - llvm-toolchain-9
           packages:
-            - clang-11.0.3
+            - clang-9
       env:
-        - MATRIX_EVAL="CC=clang-11.0.3 && CXX=clang++-11.0.3"
+        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
