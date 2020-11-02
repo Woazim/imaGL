@@ -1,8 +1,5 @@
 language: cpp
 
-install:
-  - sudo pip3 install conan
-
 script:
   - mkdir build
   - cd build
@@ -16,18 +13,29 @@ arch: amd64
 before_install:
   - eval "${MATRIX_EVAL}"
 
+install:
+  - |-
+      case $TRAVIS_OS_NAME in
+        windows)
+          choco install python3
+          pip3 install conan
+          ;;
+        osx | linux)
+          sudo pip3 install conan
+      esac
+
 jobs:
   include:
     - os: linux
       compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - gcc-9
-      env:
-        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+#      addons:
+#        apt:
+#          sources:
+#            - ubuntu-toolchain-r-test
+#          packages:
+#            - gcc-9
+#      env:
+#        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
 
     - os: linux
       compiler: clang
@@ -44,10 +52,6 @@ jobs:
     - os: osx
       osx_image: xcode11.4
       compiler: clang
-
-    - os: osx
-      osx_image: xcode11.4
-      compiler: gcc
 
     - os: windows
       
