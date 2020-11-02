@@ -16,7 +16,7 @@ arch: amd64
 before_install:
   - eval "${MATRIX_EVAL}"
 
-matrix:
+jobs:
   include:
     - os: linux
       compiler: gcc
@@ -48,8 +48,6 @@ matrix:
     - os: osx
       osx_image: xcode11.4
       compiler: gcc
-      env:
-        - MATRIX_EVAL="brew install gcc@9 && CC=gcc-9 && CXX=g++-9"
 
     - os: windows
       
