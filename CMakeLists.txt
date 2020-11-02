@@ -57,7 +57,7 @@ conan_basic_setup(TARGETS)
 set(CMAKE_DEBUG_POSTFIX d)
 
 # Incluez les sous-projets.
-add_subdirectory ("ImaGL")
+add_subdirectory ("imaGL")
 
 if(BUILD_TESTING)
 	#find_package(Catch2 REQUIRED CONFIG)
