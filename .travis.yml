@@ -5,6 +5,7 @@ script:
   - cd build
   - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
   - cmake --build . --config Release
+  - ctest -C Release
 
 dist: focal
 
@@ -17,8 +18,8 @@ install:
   - |-
       case $TRAVIS_OS_NAME in
         windows)
-          choco install python3
-          pip3 install conan
+          choco install conan --params="'/AddToPath:1'"
+          RefreshEnv.cmd
           ;;
         osx | linux)
           sudo pip3 install conan
