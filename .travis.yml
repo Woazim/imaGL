@@ -35,14 +35,6 @@ jobs:
   include:
     - os: linux
       compiler: gcc
-#      addons:
-#        apt:
-#          sources:
-#            - ubuntu-toolchain-r-test
-#          packages:
-#            - gcc-9
-#      env:
-#        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
 
     - os: linux
       compiler: clang
@@ -61,5 +53,4 @@ jobs:
       compiler: clang
 
     - os: windows
-      compiler: msvc
       
