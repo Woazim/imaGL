@@ -2,83 +2,179 @@
 //
 #define CATCH_CONFIG_MAIN // This tells Catch to provide a main() 
 
-#include <iostream>
-#include <iomanip>
-#include <fstream>
-#include "../imaGL/imaGL.h"
-#include <catch2/catch.hpp>
+#include "test.h"
 
-
-TEST_CASE("Opening a 16 bits RGBA PNG file", "[read-16b-rgba]")
+//interlaced cases
+TEST_CASE("Opening a 1 bit Gray interlaced PNG file", "[basi0g01]")
 {
-  ImaGL::CImaGL img("test-16b.png");
-
-  CHECK(img.width() == 256);
-  CHECK(img.height() == 256);
-  CHECK(img.pixelformat() == ImaGL::CImaGL::EPixelFormat::RGBA);
-  CHECK(img.pixeltype() == ImaGL::CImaGL::EPixelType::UShort);
-  REQUIRE(img.pixelsize() == 8); //Here, it is required, otherwise next CHECK will crash
-
-  //read expected pixels data from test-16b.rgba
-  std::ifstream ifs("test-16b.rgba");
-  std::vector<unsigned short> pixels;
-  const size_t nSize = img.width() * img.height() * 4;
-  pixels.reserve(nSize);
-  while (!ifs.eof())
-  {
-    unsigned short val;
-    ifs >> val;
-    if (ifs.good())
-      pixels.push_back(val);
-  }
-  const unsigned short* p1 = pixels.data();
-  const unsigned short* p2 = reinterpret_cast<const unsigned short*>(img.pixels());
-  size_t i = 0;
-  for (i = 0; i < nSize; ++i, ++p1, ++p2)
-  {
-    if (*p1 != *p2)
-    {
-      break;
-    }
-  }
-  CHECK(i == nSize);
-
-  //CHECK_THAT(pixels, Catch::Matchers::Equals(std::vector<unsigned short>(reinterpret_cast<const unsigned short*>(img.pixels()), reinterpret_cast<const unsigned short*>(img.pixels()) + nSize)));
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basi0g01.png");
 }
 
-TEST_CASE("Opening a 8 bits RGBA PNG file", "[read-8b-rgba]")
+TEST_CASE("Opening a 2 bits Gray interlaced PNG file", "[basi0g02]")
 {
-  ImaGL::CImaGL img("test-8b.png");
-
-  CHECK(img.width() == 256);
-  CHECK(img.height() == 256);
-  CHECK(img.pixelformat() == ImaGL::CImaGL::EPixelFormat::RGBA);
-  CHECK(img.pixeltype() == ImaGL::CImaGL::EPixelType::UByte);
-  REQUIRE(img.pixelsize() == 4); //Here, it is required, otherwise next CHECK will crash
-
-  //read expected pixels data from test-8b.rgba
-  std::ifstream ifs("test-8b.rgba");
-  std::vector<unsigned char> pixels;
-  const size_t nSize = img.width() * img.height() * 4;
-  pixels.reserve(nSize);
-  while (!ifs.eof())
-  {
-    unsigned int val; //use int here to avoid to consider char as real characters
-    ifs >> val;
-    if (ifs.good())
-      pixels.push_back(val);
-  }
-
-  const unsigned char* p1 = pixels.data();
-  const unsigned char* p2 = img.pixels();
-  size_t i = 0;
-  for (i = 0; i < nSize; ++i, ++p1, ++p2)
-  {
-    if (*p1 != *p2)
-    {
-      break;
-    }
-  }
-  CHECK(i == nSize);
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basi0g02.png");
 }
 
+TEST_CASE("Opening a 4 bits Gray interlaced PNG file", "[basi0g04]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basi0g04.png");
+}
+
+TEST_CASE("Opening a 8 bits Gray interlaced PNG file", "[basi0g08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basi0g08.png");
+}
+
+TEST_CASE("Opening a 16 bits Gray interlaced PNG file", "[basi0g16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UShort, 1, 32, 32, "basi0g16.png");
+}
+
+TEST_CASE("Opening a 8 bits Color interlaced PNG file", "[basi2c08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basi2c08.png");
+}
+
+TEST_CASE("Opening a 16 bits Color interlaced PNG file", "[basi2c16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UShort, 3, 32, 32, "basi2c16.png");
+}
+
+TEST_CASE("Opening a 1 bit Paletted interlaced PNG file", "[basi3p01]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basi3p01.png");
+}
+
+TEST_CASE("Opening a 4 bits Paletted interlaced PNG file", "[basi3p04]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basi3p04.png");
+}
+
+TEST_CASE("Opening a 8 bits Paletted interlaced PNG file", "[basi3p08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basi3p08.png");
+}
+
+TEST_CASE("Opening a 8 bits Gray + 8 bits Alpha interlaced PNG file", "[basi4a08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UByte, 2, 32, 32, "basi4a08.png");
+}
+
+TEST_CASE("Opening a 16 bits Gray + 16 bits Alpha interlaced PNG file", "[basi4a16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UShort, 2, 32, 32, "basi4a16.png");
+}
+
+TEST_CASE("Opening a 8 bits Color + 8 bits Alpha interlaced PNG file", "[basi6a08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UByte, 4, 32, 32, "basi6a08.png");
+}
+
+TEST_CASE("Opening a 16 bits Color + 16 bits Alpha interlaced PNG file", "[basi6a16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort, 4, 32, 32, "basi6a16.png");
+}
+
+
+
+//non interlaced cases
+TEST_CASE("Opening a 1 bit Gray PNG file", "[basn0g01]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basn0g01.png");
+}
+
+TEST_CASE("Opening a 2 bits Gray PNG file", "[basn0g02]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basn0g02.png");
+}
+
+TEST_CASE("Opening a 4 bits Gray PNG file", "[basn0g04]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basn0g04.png");
+}
+
+TEST_CASE("Opening a 8 bits Gray PNG file", "[basn0g08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte, 1, 32, 32, "basn0g08.png");
+}
+
+TEST_CASE("Opening a 16 bits Gray PNG file", "[basn0g16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UShort, 1, 32, 32, "basn0g16.png");
+}
+
+TEST_CASE("Opening a 8 bits Color PNG file", "[basn2c08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basn2c08.png");
+}
+
+TEST_CASE("Opening a 16 bits Color PNG file", "[basn2c16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UShort, 3, 32, 32, "basn2c16.png");
+}
+
+TEST_CASE("Opening a 1 bit Paletted PNG file", "[basn3p01]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basn3p01.png");
+}
+
+TEST_CASE("Opening a 4 bits Paletted PNG file", "[basn3p04]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basn3p04.png");
+}
+
+TEST_CASE("Opening a 8 bits Paletted PNG file", "[basn3p08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "basn3p08.png");
+}
+
+TEST_CASE("Opening a 8 bits Gray + 8 bits Alpha PNG file", "[basn4a08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UByte, 2, 32, 32, "basn4a08.png");
+}
+
+TEST_CASE("Opening a 16 bits Gray + 16 bits Alpha PNG file", "[basn4a16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UShort, 2, 32, 32, "basn4a16.png");
+}
+
+TEST_CASE("Opening a 8 bits Color + 8 bits Alpha PNG file", "[basn6a08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UByte, 4, 32, 32, "basn6a08.png");
+}
+
+TEST_CASE("Opening a 16 bits Color + 16 bits Alpha PNG file", "[basn6a16]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort, 4, 32, 32, "basn6a16.png");
+}
+
+
+
+//zlib compressed cases
+TEST_CASE("Opening a 8 bits Color PNG file with compression level 0", "[z00n2c08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "z00n2c08.png");
+}
+
+TEST_CASE("Opening a 8 bits Color PNG file with compression level 3", "[z03n2c08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "z03n2c08.png");
+}
+
+TEST_CASE("Opening a 8 bits Color PNG file with compression level 6", "[z06n2c08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "z06n2c08.png");
+}
+
+TEST_CASE("Opening a 8 bits Color PNG file with compression level 9", "[z09n2c08]")
+{
+  test_reading<unsigned char>(ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte, 3, 32, 32, "z09n2c08.png");
+}
+
+
+
+//Non square case
+TEST_CASE("Opening a 16 bits Color + 16 bits Alpha non squared PNG file ", "[test-16b]")
+{
+  test_reading<unsigned short>(ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort, 4, 200, 100, "test-16b.png");
+}

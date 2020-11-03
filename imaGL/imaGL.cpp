@@ -67,14 +67,18 @@ namespace ImaGL {
       return 0;
     case CImaGL::EPixelFormat::R:
       nNbComp = 1;
+      break;
     case CImaGL::EPixelFormat::RG:
       nNbComp = 2;
+      break;
     case CImaGL::EPixelFormat::RGB:
     case CImaGL::EPixelFormat::BGR:
       nNbComp = 3;
+      break;
     case CImaGL::EPixelFormat::RGBA:
     case CImaGL::EPixelFormat::BGRA:
       nNbComp = 4;
+      break;
     }
     switch (pt)
     {

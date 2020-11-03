@@ -151,7 +151,7 @@ namespace ImaGL {
 
   private:
     SPrivateImaGLData* m_pData;
-    int m_nPixelSize = 0;
+    size_t m_nPixelSize = 0;
 
     void computePixelSize();
 

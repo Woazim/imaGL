@@ -22,17 +22,45 @@ endif()
 
 target_link_libraries(testProg libImaGL)
 
+file(GLOB testPngFiles "*.png" "*.png.txt")
 add_custom_command(TARGET testProg POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-                       "${CMAKE_CURRENT_SOURCE_DIR}/test-16b.png"
-                       "${CMAKE_CURRENT_SOURCE_DIR}/test-16b.rgba"
-                       "${CMAKE_CURRENT_SOURCE_DIR}/test-8b.png"
-                       "${CMAKE_CURRENT_SOURCE_DIR}/test-8b.rgba"
+                       ${testPngFiles}
                        $<TARGET_FILE:libImaGL>
                            $<TARGET_FILE_DIR:testProg>)
 
 set_property(TARGET testProg PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
-add_test(NAME Reading_16b_RGBA_PNG COMMAND testProg [read-16b-rgba] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
-add_test(NAME Reading_8b_RGBA_PNG COMMAND testProg [read-8b-rgba] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
-# TODO: Ajoutez des tests et installez des cibles si nécessaire.
+add_test(NAME Reading_basi0g01.png COMMAND testProg [basi0g01] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi0g02.png COMMAND testProg [basi0g02] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi0g04.png COMMAND testProg [basi0g04] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi0g08.png COMMAND testProg [basi0g08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi0g16.png COMMAND testProg [basi0g16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi2c08.png COMMAND testProg [basi2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi2c16.png COMMAND testProg [basi2c16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi3p01.png COMMAND testProg [basi3p01] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi3p04.png COMMAND testProg [basi3p04] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi3p08.png COMMAND testProg [basi3p08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi4a08.png COMMAND testProg [basi4a08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi4a16.png COMMAND testProg [basi4a16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi6a08.png COMMAND testProg [basi6a08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basi6a16.png COMMAND testProg [basi6a16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn0g01.png COMMAND testProg [basn0g01] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn0g02.png COMMAND testProg [basn0g02] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn0g04.png COMMAND testProg [basn0g04] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn0g08.png COMMAND testProg [basn0g08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn0g16.png COMMAND testProg [basn0g16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn2c08.png COMMAND testProg [basn2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn2c16.png COMMAND testProg [basn2c16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn3p01.png COMMAND testProg [basn3p01] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn3p04.png COMMAND testProg [basn3p04] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn3p08.png COMMAND testProg [basn3p08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn4a08.png COMMAND testProg [basn4a08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn4a16.png COMMAND testProg [basn4a16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn6a08.png COMMAND testProg [basn6a08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_basn6a16.png COMMAND testProg [basn6a16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_test-16b.png COMMAND testProg [test-16b] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_z00n2c08.png COMMAND testProg [z00n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_z03n2c08.png COMMAND testProg [z03n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_z06n2c08.png COMMAND testProg [z06n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_z09n2c08.png COMMAND testProg [z09n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)

@@ -13,7 +13,6 @@ namespace ImaGL {
     CImaGL::EPixelFormat m_pf = CImaGL::EPixelFormat::Undefined;
     CImaGL::EPixelType m_pt = CImaGL::EPixelType::Undefined;
 
-    void getPixelFormatAndType(std::istream& is);
     static void png_read_fn(png_structp, png_bytep, size_t);
 
   public:
