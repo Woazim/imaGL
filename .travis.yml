@@ -19,7 +19,7 @@ install:
       case $TRAVIS_OS_NAME in
         windows)
           choco install conan --params="'/AddToPath:1'"
-          RefreshEnv.cmd
+          export PATH=$(cmd.exe //c "refreshenv > nul & C:\Progra~1\Git\bin\bash -c 'echo \$PATH' ")
           ;;
         osx | linux)
           sudo pip3 install conan
