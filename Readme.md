@@ -1,5 +1,7 @@
 # ImaGL Readme
 
+[![Build Status](https://travis-ci.org/Woazim/imaGL.svg?branch=master)](https://travis-ci.org/Woazim/imaGL)
+
 ## About
 
 ImaGL is a lightweight C++ library that simplify reading image file for OpenGL applications.
