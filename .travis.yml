@@ -23,6 +23,8 @@ install:
           unset CXX
           unset CXX_FOR_BUILD
           choco install conan --params="'/AddToPath:1'"
+          choco install visualstudio2019buildtools
+          choco install visualstudio2019-workload-vctools
           export PATH=$(cmd.exe //c "refreshenv > nul & C:\Progra~1\Git\bin\bash -c 'echo \$PATH' ")
           ;;
         osx | linux)
