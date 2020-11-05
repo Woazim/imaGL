@@ -183,7 +183,7 @@ TEST_CASE("Opening a 16 bits Color + 16 bits Alpha non squared PNG file ", "[tes
 
 
 //Pixel casts 
-TEST_CASE("Pixel casts", "[pixelcast]")
+TEST_CASE("Pixel casts for reading", "[pixelcast-reading]")
 {
   for (size_t test = 0; test < 10; ++test)
   {
