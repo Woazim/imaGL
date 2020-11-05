@@ -10,6 +10,7 @@
 
 namespace ImaGL {
 
+
   CImaGL::CImaGL(std::string_view filename)
     : m_pData(new SPrivateImaGLData)
   {
