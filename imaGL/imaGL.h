@@ -389,52 +389,52 @@ namespace ImaGL {
   };
 
   using PixelUByte_3_3_2 = PackedPixel<CImaGL::EPixelType::UByte_3_3_2>;
-  const uint32_t PixelUByte_3_3_2::componentMasks[PixelUByte_3_3_2::nb_comp] = { (uint8_t)-1, 0b00011100, 0b00000011 };
-  const int PixelUByte_3_3_2::componentShifts[PixelUByte_3_3_2::nb_comp] = { 5, 2, 0 };
+  template<> const uint32_t PixelUByte_3_3_2::componentMasks[PixelUByte_3_3_2::nb_comp] = { (uint8_t)-1, 0b00011100, 0b00000011 };
+  template<> const int PixelUByte_3_3_2::componentShifts[PixelUByte_3_3_2::nb_comp] = { 5, 2, 0 };
 
   using PixelUByte_2_3_3_Rev = PackedPixel<CImaGL::EPixelType::UByte_2_3_3_Rev>;
-  const uint32_t PixelUByte_2_3_3_Rev::componentMasks[PixelUByte_2_3_3_Rev::nb_comp] = { 0b00000111, 0b00111000, (uint8_t)-1 };
-  const int PixelUByte_2_3_3_Rev::componentShifts[PixelUByte_2_3_3_Rev::nb_comp] = { 0, 3, 6 };
+  template<> const uint32_t PixelUByte_2_3_3_Rev::componentMasks[PixelUByte_2_3_3_Rev::nb_comp] = { 0b00000111, 0b00111000, (uint8_t)-1 };
+  template<> const int PixelUByte_2_3_3_Rev::componentShifts[PixelUByte_2_3_3_Rev::nb_comp] = { 0, 3, 6 };
 
   using PixelUShort_5_6_5 = PackedPixel<CImaGL::EPixelType::UShort_5_6_5>;
-  const uint32_t PixelUShort_5_6_5::componentMasks[PixelUShort_5_6_5::nb_comp] = { (uint16_t)-1, 0b0000011111100000, 0b0000000000011111 };
-  const int PixelUShort_5_6_5::componentShifts[PixelUShort_5_6_5::nb_comp] = { 11, 5, 0 };
+  template<> const uint32_t PixelUShort_5_6_5::componentMasks[PixelUShort_5_6_5::nb_comp] = { (uint16_t)-1, 0b0000011111100000, 0b0000000000011111 };
+  template<> const int PixelUShort_5_6_5::componentShifts[PixelUShort_5_6_5::nb_comp] = { 11, 5, 0 };
 
   using PixelUShort_5_6_5_Rev = PackedPixel<CImaGL::EPixelType::UShort_5_6_5_Rev>;
-  const uint32_t PixelUShort_5_6_5_Rev::componentMasks[PixelUShort_5_6_5_Rev::nb_comp] = { 0b0000000000011111, 0b0000011111100000, (uint16_t)-1 };
-  const int PixelUShort_5_6_5_Rev::componentShifts[PixelUShort_5_6_5_Rev::nb_comp] = { 0, 5, 11 };
+  template<> const uint32_t PixelUShort_5_6_5_Rev::componentMasks[PixelUShort_5_6_5_Rev::nb_comp] = { 0b0000000000011111, 0b0000011111100000, (uint16_t)-1 };
+  template<> const int PixelUShort_5_6_5_Rev::componentShifts[PixelUShort_5_6_5_Rev::nb_comp] = { 0, 5, 11 };
 
   using PixelUShort_4_4_4_4 = PackedPixel<CImaGL::EPixelType::UShort_4_4_4_4>;
-  const uint32_t PixelUShort_4_4_4_4::componentMasks[PixelUShort_4_4_4_4::nb_comp] = { (uint16_t)-1, 0b0000111100000000, 0b0000000011110000, 0b0000000000001111 };
-  const int PixelUShort_4_4_4_4::componentShifts[PixelUShort_4_4_4_4::nb_comp] = { 12, 8, 4, 0 };
+  template<> const uint32_t PixelUShort_4_4_4_4::componentMasks[PixelUShort_4_4_4_4::nb_comp] = { (uint16_t)-1, 0b0000111100000000, 0b0000000011110000, 0b0000000000001111 };
+  template<> const int PixelUShort_4_4_4_4::componentShifts[PixelUShort_4_4_4_4::nb_comp] = { 12, 8, 4, 0 };
 
   using PixelUShort_4_4_4_4_Rev = PackedPixel<CImaGL::EPixelType::UShort_4_4_4_4_Rev>;
-  const uint32_t PixelUShort_4_4_4_4_Rev::componentMasks[PixelUShort_4_4_4_4_Rev::nb_comp] = { 0b0000000000001111, 0b0000000011110000, 0b0000111100000000, (uint16_t)-1 };
-  const int PixelUShort_4_4_4_4_Rev::componentShifts[PixelUShort_4_4_4_4_Rev::nb_comp] = { 0, 4, 8, 12 };
+  template<> const uint32_t PixelUShort_4_4_4_4_Rev::componentMasks[PixelUShort_4_4_4_4_Rev::nb_comp] = { 0b0000000000001111, 0b0000000011110000, 0b0000111100000000, (uint16_t)-1 };
+  template<> const int PixelUShort_4_4_4_4_Rev::componentShifts[PixelUShort_4_4_4_4_Rev::nb_comp] = { 0, 4, 8, 12 };
 
   using PixelUShort_5_5_5_1 = PackedPixel<CImaGL::EPixelType::UShort_5_5_5_1>;
-  const uint32_t PixelUShort_5_5_5_1::componentMasks[PixelUShort_5_5_5_1::nb_comp] = { (uint16_t)-1, 0b0000011111000000, 0b0000000000111110, 0b0000000000000001 };
-  const int PixelUShort_5_5_5_1::componentShifts[PixelUShort_5_5_5_1::nb_comp] = { 11, 6, 1, 0 };
+  template<> const uint32_t PixelUShort_5_5_5_1::componentMasks[PixelUShort_5_5_5_1::nb_comp] = { (uint16_t)-1, 0b0000011111000000, 0b0000000000111110, 0b0000000000000001 };
+  template<> const int PixelUShort_5_5_5_1::componentShifts[PixelUShort_5_5_5_1::nb_comp] = { 11, 6, 1, 0 };
 
   using PixelUShort_1_5_5_5_Rev = PackedPixel<CImaGL::EPixelType::UShort_1_5_5_5_Rev>;
-  const uint32_t PixelUShort_1_5_5_5_Rev::componentMasks[PixelUShort_1_5_5_5_Rev::nb_comp] = { 0b0000000000011111, 0b0000001111100000, 0b0111110000000000, (uint16_t)-1};
-  const int PixelUShort_1_5_5_5_Rev::componentShifts[PixelUShort_1_5_5_5_Rev::nb_comp] = { 0, 5, 10, 15 };
+  template<> const uint32_t PixelUShort_1_5_5_5_Rev::componentMasks[PixelUShort_1_5_5_5_Rev::nb_comp] = { 0b0000000000011111, 0b0000001111100000, 0b0111110000000000, (uint16_t)-1};
+  template<> const int PixelUShort_1_5_5_5_Rev::componentShifts[PixelUShort_1_5_5_5_Rev::nb_comp] = { 0, 5, 10, 15 };
 
   using PixelUInt_8_8_8_8 = PackedPixel<CImaGL::EPixelType::UInt_8_8_8_8>;
-  const uint32_t PixelUInt_8_8_8_8::componentMasks[PixelUInt_8_8_8_8::nb_comp] = { (uint32_t)-1, 0b00000000111111110000000000000000U, 0b00000000000000001111111100000000U, 0b00000000000000000000000011111111U };
-  const int PixelUInt_8_8_8_8::componentShifts[PixelUInt_8_8_8_8::nb_comp] = { 24, 16, 8, 0 };
+  template<> const uint32_t PixelUInt_8_8_8_8::componentMasks[PixelUInt_8_8_8_8::nb_comp] = { (uint32_t)-1, 0b00000000111111110000000000000000U, 0b00000000000000001111111100000000U, 0b00000000000000000000000011111111U };
+  template<> const int PixelUInt_8_8_8_8::componentShifts[PixelUInt_8_8_8_8::nb_comp] = { 24, 16, 8, 0 };
 
   using PixelUInt_8_8_8_8_Rev = PackedPixel<CImaGL::EPixelType::UInt_8_8_8_8_Rev>;
-  const uint32_t PixelUInt_8_8_8_8_Rev::componentMasks[PixelUInt_8_8_8_8_Rev::nb_comp] = { 0b00000000000000000000000011111111U, 0b00000000000000001111111100000000U, 0b00000000111111110000000000000000U, (uint32_t)-1 };
-  const int PixelUInt_8_8_8_8_Rev::componentShifts[PixelUInt_8_8_8_8_Rev::nb_comp] = { 0, 8, 16, 24 };
+  template<> const uint32_t PixelUInt_8_8_8_8_Rev::componentMasks[PixelUInt_8_8_8_8_Rev::nb_comp] = { 0b00000000000000000000000011111111U, 0b00000000000000001111111100000000U, 0b00000000111111110000000000000000U, (uint32_t)-1 };
+  template<> const int PixelUInt_8_8_8_8_Rev::componentShifts[PixelUInt_8_8_8_8_Rev::nb_comp] = { 0, 8, 16, 24 };
 
   using PixelUInt_10_10_10_2 = PackedPixel<CImaGL::EPixelType::UInt_10_10_10_2>;
-  const uint32_t PixelUInt_10_10_10_2::componentMasks[PixelUInt_10_10_10_2::nb_comp] = { (uint32_t)-1, 0b00000000001111111111000000000000U, 0b00000000000000000000111111111100U, 0b00000000000000000000000000000011U };
-  const int PixelUInt_10_10_10_2::componentShifts[PixelUInt_10_10_10_2::nb_comp] = { 22, 12, 2, 0 };
+  template<> const uint32_t PixelUInt_10_10_10_2::componentMasks[PixelUInt_10_10_10_2::nb_comp] = { (uint32_t)-1, 0b00000000001111111111000000000000U, 0b00000000000000000000111111111100U, 0b00000000000000000000000000000011U };
+  template<> const int PixelUInt_10_10_10_2::componentShifts[PixelUInt_10_10_10_2::nb_comp] = { 22, 12, 2, 0 };
 
   using PixelUInt_2_10_10_10_Rev = PackedPixel<CImaGL::EPixelType::UInt_2_10_10_10_Rev>;
-  const uint32_t PixelUInt_2_10_10_10_Rev::componentMasks[PixelUInt_2_10_10_10_Rev::nb_comp] = { 0b00000000000000000000001111111111U, 0b00000000000011111111110000000000U, 0b00111111111100000000000000000000U, (uint32_t)-1 };
-  const int PixelUInt_2_10_10_10_Rev::componentShifts[PixelUInt_2_10_10_10_Rev::nb_comp] = { 0, 10, 20, 30 };
+  template<> const uint32_t PixelUInt_2_10_10_10_Rev::componentMasks[PixelUInt_2_10_10_10_Rev::nb_comp] = { 0b00000000000000000000001111111111U, 0b00000000000011111111110000000000U, 0b00111111111100000000000000000000U, (uint32_t)-1 };
+  template<> const int PixelUInt_2_10_10_10_Rev::componentShifts[PixelUInt_2_10_10_10_Rev::nb_comp] = { 0, 10, 20, 30 };
 
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
   struct Comp { using type = void; };
