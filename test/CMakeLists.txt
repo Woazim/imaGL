@@ -64,3 +64,5 @@ add_test(NAME Reading_z00n2c08.png COMMAND testProg [z00n2c08] WORKING_DIRECTORY
 add_test(NAME Reading_z03n2c08.png COMMAND testProg [z03n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_z06n2c08.png COMMAND testProg [z06n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_z09n2c08.png COMMAND testProg [z09n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+
+add_test(NAME Pixel_casts_for_reading COMMAND testProg [pixelcast-reading] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)

@@ -43,3 +43,28 @@ void test_reading(ImaGL::CImaGL::EPixelFormat pf, ImaGL::CImaGL::EPixelType pt, 
   }
   CHECK(i == nSize);
 }
+
+template<typename PixelType>
+void test_readingPixels(unsigned char* rawData)
+{
+  REQUIRE(sizeof(PixelType) == PixelType::pixel_size);
+  //Testing with pointer cast
+  PixelType* pPix = reinterpret_cast<PixelType*>(rawData);
+  for (size_t iPix = 0; iPix < 2; ++iPix)
+  {
+    if constexpr (PixelType::is_packed)
+    {
+      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format>::val; ++i)
+      {
+        unsigned long valCompPix = pPix[iPix].comp(i);
+        unsigned long valCompRaw = ((*reinterpret_cast<PixelType::pack_type::type*>(rawData + iPix * PixelType::pixel_size)) & PixelType::pack_type::componentMasks[i]) >> PixelType::pack_type::componentShifts[i];
+        CHECK(valCompPix == valCompRaw);
+      }
+    }
+    else
+    {
+      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format>::val; ++i)
+        CHECK((unsigned long)pPix[iPix].comp(i) == (unsigned long)*(PixelType::comp_type*)(rawData + iPix * PixelType::pixel_size + i * sizeof(PixelType::comp_type)));
+    }
+  }
+}

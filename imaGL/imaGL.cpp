@@ -6,6 +6,7 @@
 #include "loader_factory.h"
 #include <algorithm>
 #include <fstream>
+#include <cassert>
 
 namespace ImaGL {
 
@@ -45,9 +46,41 @@ namespace ImaGL {
     delete m_pData;
   }
 
+  void CImaGL::upscale_x(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  {
+  }
+
+
+  //A passer en template dans un autre scale.h
+  //templeter par le type de pixel
+  //type de pixe à déterminer dans rescale()
+  void CImaGL::downscale_x_by2(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  {
+    dest.m_nHeight = source.m_nHeight;
+    dest.m_nWidth = source.m_nWidth / 2;
+    dest.m_PixelFormat = source.m_PixelFormat;
+    dest.m_PixelType = source.m_PixelType;
+    dest.m_nPixelSize = source.m_nPixelSize;
+    dest.m_vRawData.resize(dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
+
+    //for (size_t row = 0; row < dest.m_nHeight; ++row)
+    //  for (size_t col = 0; col < dest.m_nWidth; ++col)
+    //  {
+    //    dest.m_vRawData[]
+    //  }
+  }
+
+  void CImaGL::upscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  {
+  }
+
+  void CImaGL::downscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  {
+  }
+
   void CImaGL::computePixelSize()
   {
-    m_nPixelSize = ImaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
+    m_pData->m_nPixelSize = ImaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
   }
 
   const unsigned char* CImaGL::pixels()      const { return m_pData->m_vRawData.data(); }
@@ -55,66 +88,39 @@ namespace ImaGL {
   size_t               CImaGL::height()      const { return m_pData->m_nHeight; }
   CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData->m_PixelFormat; }
   CImaGL::EPixelType   CImaGL::pixeltype()   const { return m_pData->m_PixelType; }
-  size_t               CImaGL::pixelsize()   const { return m_nPixelSize; }
+  size_t               CImaGL::pixelsize()   const { return m_pData->m_nPixelSize; }
 
-  size_t computePixelSize(CImaGL::EPixelFormat pf, CImaGL::EPixelType pt)
+  void CImaGL::rescale(int width, int height)
   {
-    int nNbComp = 0;
-    switch (pf)
-    {
-    default:
-    case CImaGL::EPixelFormat::Undefined:
-      return 0;
-    case CImaGL::EPixelFormat::R:
-      nNbComp = 1;
-      break;
-    case CImaGL::EPixelFormat::RG:
-      nNbComp = 2;
-      break;
-    case CImaGL::EPixelFormat::RGB:
-    case CImaGL::EPixelFormat::BGR:
-      nNbComp = 3;
-      break;
-    case CImaGL::EPixelFormat::RGBA:
-    case CImaGL::EPixelFormat::BGRA:
-      nNbComp = 4;
-      break;
-    }
-    switch (pt)
-    {
-    default:
-    case CImaGL::EPixelType::Undefined:
-      return 0;
-    case CImaGL::EPixelType::UByte:
-    case CImaGL::EPixelType::Byte:
-      return nNbComp;
-    case CImaGL::EPixelType::UShort:
-    case CImaGL::EPixelType::Short:
-      return nNbComp * 2;
-    case CImaGL::EPixelType::UInt:
-    case CImaGL::EPixelType::Int:
-      return nNbComp * 4;
-    case CImaGL::EPixelType::HFloat:
-      return nNbComp * 2;
-    case CImaGL::EPixelType::Float:
-      return nNbComp * 4;
-    case CImaGL::EPixelType::UByte_3_3_2:
-    case CImaGL::EPixelType::UByte_2_3_3_Rev:
-      return 1;
-    case CImaGL::EPixelType::UShort_5_6_5:
-    case CImaGL::EPixelType::UShort_5_6_5_Rev:
-      return 2;
-    case CImaGL::EPixelType::UShort_4_4_4_4:
-    case CImaGL::EPixelType::UShort_4_4_4_4_Rev:
-    case CImaGL::EPixelType::UShort_5_5_5_1:
-    case CImaGL::EPixelType::UShort_1_5_5_5_Rev:
-    case CImaGL::EPixelType::UInt_8_8_8_8:
-    case CImaGL::EPixelType::UInt_8_8_8_8_Rev:
-    case CImaGL::EPixelType::UInt_10_10_10_2:
-    case CImaGL::EPixelType::UInt_2_10_10_10_Rev:
-      return 4;
-    }
-    return 0;
+    const size_t lastHeight = m_pData->m_nHeight;
+
+    //First, rescale image along x
+    SPrivateImaGLData tempImg;
+    tempImg.m_nHeight = m_pData->m_nHeight;
+    tempImg.m_nWidth = width;
+    tempImg.m_PixelFormat = m_pData->m_PixelFormat;
+    tempImg.m_PixelType = m_pData->m_PixelType;
+    tempImg.m_nPixelSize = m_pData->m_nPixelSize;
+    tempImg.m_vRawData.resize(tempImg.m_nWidth * tempImg.m_nHeight * tempImg.m_nPixelSize);
+
+    //if (width > m_pData->m_nWidth)
+    //  upscale_x(m_pData, tempImg);
+    //else if (width < m_pData->m_nWidth)
+    //  downscale_x(m_pData, tempImg);
+    //else
+    //  tempImg = *m_pData;
+
+    //Then, rescale image along y
+    m_pData->m_nHeight = height;
+    m_pData->m_nWidth = width;
+    m_pData->m_vRawData.resize(width * height * m_pData->m_nPixelSize);
+
+    //if (height > lastHeight)
+    //  upscale_y(tempImg, m_pData);
+    //else if (width < lastHeight)
+    //  downscale_y(tempImg, m_pData);
+    //else
+    //  *m_pData = tempImg;
   }
 
 }
