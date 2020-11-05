@@ -30,6 +30,7 @@ install:
           ;;
         osx)
           sudo pip3 install conan
+          ;;
         linux)
           sudo pip3 install conan
           if [ "$CC" == "clang" ]
@@ -42,6 +43,7 @@ install:
             export CC_FOR_BUILD=clang-9
             export CXX_FOR_BUILD=clang++-9
           fi
+          ;;
       esac
 
 compiler:
