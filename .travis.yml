@@ -1,18 +1,19 @@
 language: cpp
 
+env:
+  - STATIC_LIB=ON
+  - STATIC_LIB=OFF
+
 script:
   - mkdir build
   - cd build
-  - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+  - cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DSTATIC_LIB=$STATIC_LIB
   - cmake --build . --config Release
   - ctest -C Release
 
 dist: focal
 
 arch: amd64
-
-before_install:
-  - eval "${MATRIX_EVAL}"
 
 install:
   - |-
@@ -27,30 +28,43 @@ install:
           choco install visualstudio2019-workload-vctools
           export PATH=$(cmd.exe //c "refreshenv > nul & C:\Progra~1\Git\bin\bash -c 'echo \$PATH' ")
           ;;
-        osx | linux)
+        osx)
           sudo pip3 install conan
+        linux)
+          sudo pip3 install conan
+          if [ "$CC" == "clang" ]
+          then 
+            sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+            sudo apt -q update
+            sudo apt install clang-9
+            export CC=clang-9
+            export CXX=clang++-9
+            export CC_FOR_BUILD=clang-9
+            export CXX_FOR_BUILD=clang++-9
+          fi
       esac
 
+compiler:
+  - gcc
+  - clang
+  - Visual Studio
+
+os:
+  - linux
+  - osx
+  - windows
+
+osx_image: xcode11.4
+  
 jobs:
-  include:
-    - os: linux
-      compiler: gcc
-
-    - os: linux
-      compiler: clang
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-9
-          packages:
-            - clang-9
-      env:
-        - MATRIX_EVAL="CC=clang-9 && CXX=clang++-9"
-
-    - os: osx
-      osx_image: xcode11.4
-      compiler: clang
-
+  exclude:
     - os: windows
-      
+      compiler: gcc
+    - os: windows
+      compiler: clang
+    - os: linux
+      compiler: Visual Studio
+    - os: osx
+      compiler: Visual Studio
+    - os: osx
+      compiler: gcc
