@@ -56,8 +56,9 @@ void test_readingPixels(unsigned char* rawData)
     {
       for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
       {
+        using pack_type = typename PixelType::pack_type;
         unsigned long valCompPix = pPix[iPix].comp_i(i);
-        unsigned long valCompRaw = ((*reinterpret_cast<PixelType::pack_type::type*>(rawData + iPix * PixelType::pixel_size())) & PixelType::pack_type::componentMasks()[i]) >> PixelType::pack_type::componentShifts()[i];
+        unsigned long valCompRaw = ((*reinterpret_cast<PixelType::pack_type::type*>(rawData + iPix * PixelType::pixel_size())) & pack_type::componentMasks()[i]) >> pack_type::componentShifts()[i];
         CHECK(valCompPix == valCompRaw);
       }
     }
