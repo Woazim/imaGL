@@ -26,5 +26,6 @@ target_sources(libImaGL PRIVATE ${ImaGL_SRC})
 add_compile_definitions(ImaGL_EXPORTS)
 
 set_property(TARGET libImaGL PROPERTY CXX_STANDARD 20)
+set_property(TARGET libImaGL PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # TODO: Ajoutez des tests et installez des cibles si nécessaire.
