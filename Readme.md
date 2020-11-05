@@ -38,22 +38,48 @@ CImaGL::EPixelType pt = img.pixeltype(); //This enum is directly compatible with
 // You just have to static_cast<GLenum> it.
 size_t ps = img.pixelsize(); //This is a convenient function which returns the size of a pixel in bytes.
 // For example, the pixesize is 8 for an RGBA / UShort image.
+const unsigned char* pixels = img.pixels(); //Finally, access to pixels
 ```
 
 Image are described row by row from top left corner to bottom right one. There is no gap (such as memory alignement) between rows.
 
 Pixel format and type are choosen to be as close as the one in the file, with never loosing data.
 
+Some helper class templates can be usefull to read pixels. The most important is `Pixel<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>` that you can cast from `CImaGL::pixels()`.
+
+``` cpp
+//Suppose that img is a RGBA / UShort image.
+//You can access pixels in correct form with :
+using PixelType = ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort>;
+const PixelType* pix = reinterpret_cast<const PixelType*>(img.pixels());
+//Get the pixel at position row = 4, col = 42:
+const PixelType& pix_4_42 = pix[4*img.width() + 42];
+//Get its color components with template function:
+unsigned short R = pix_4_42.comp<0>(); //Red
+unsigned short G = pix_4_42.comp<1>(); //Green
+unsigned short B = pix_4_42.comp<2>(); //Blue
+unsigned short A = pix_4_42.comp<3>(); //Alpha
+//Get its color components with "normal" function (but not so efficiently):
+unsigned short _R = pix_4_42.comp_i_(0); //Red
+unsigned short _G = pix_4_42.comp_i_(1); //Green
+unsigned short _B = pix_4_42.comp_i_(2); //Blue
+unsigned short _A = pix_4_42.comp_i_(3); //Alpha
+```
+
+The last example also work if pixel is a packed type (such as `ImaGL::CImaGL::EPixelType::UByte_5_5_3`).
+
 ## Compilation / Installation / Testing
 
 ### Prerequisites
 
-To compile, you must have conan installed (see [conan.io](https://conan.io)). It will install all needed dependencies.
+To compile, you must have conan installed (see [conan.io](https://conan.io)). It will install and eventually build all needed dependencies.
 
 For your information, ImaGL can depend on (not necessarily, see below):
 
-- libpng 1.6.37+
+- libpng 1.6.37+ / zlib 1.2.11
 - catch2 2.13.2+
+
+ImaGL can be built with Microsoft Visual Studio 2019 (16.5+), GCC 9+, CLang 10+, Apple-CLang 11.0.3+ (Xcode 11.4+).
 
 ### Quick install
 
@@ -84,6 +110,9 @@ You can use cmake-gui or ccmake to configure your build. Possible options are:
   - Brings PNG format support to ImaGL
   - Dependencies libPNG >= 1.6.37
   - Default ON
+- CONAN_PROFILE
+  - Define the conan profile to use to build and install dependencies.
+  - Default : default
 
 If you use mono config cmake generator (such as Unix Makefile or Ninja), you can choose `Debug` or `Release` compilation by using `-DCMAKE_BUILD_TYPE=<CONFIG>` option when configuring your build (or by using cmake-gui / ccmake)
 
