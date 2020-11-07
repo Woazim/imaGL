@@ -28,7 +28,7 @@ install:
           choco install visualstudio2019-workload-vctools
           export PATH=$(cmd.exe //c "refreshenv > nul & C:\Progra~1\Git\bin\bash -c 'echo \$PATH' ")
           export CONAN_PROFILE=default
-          export
+          conan profile new default --detect
           conan profile update "settings.compiler=Visual Studio" default
           conan profile update settings.compiler.version=16 default          
           ;;
@@ -42,11 +42,11 @@ install:
           if [ "$CC" == "clang" ]
           then 
             sudo apt -q update
-            sudo apt install clang
-            export CC=clang
-            export CXX=clang++
-            export CC_FOR_BUILD=clang
-            export CXX_FOR_BUILD=clang++
+            sudo apt install clang-10 libc++-10-dev
+            export CC=clang-10
+            export CXX=clang++-10
+            export CC_FOR_BUILD=clang-10
+            export CXX_FOR_BUILD=clang++-10
             export CONAN_PROFILE=clang
             conan profile new clang --detect
             conan profile update settings.compiler.libcxx=libc++ clang
