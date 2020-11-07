@@ -42,7 +42,7 @@ install:
           if [ "$CC" == "clang" ]
           then 
             sudo apt -q update
-            sudo apt install clang-10 libc++-10-dev
+            sudo apt install clang-10 libc++-10-dev libc++abi-10-dev
             export CC=clang-10
             export CXX=clang++-10
             export CC_FOR_BUILD=clang-10
