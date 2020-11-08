@@ -364,6 +364,7 @@ namespace ImaGL {
   private:
     type pixel;
   public:
+    //Accessor to components for reading pixel
     template<size_t n>
     comp_type comp() const { static_assert(n < nb_comp, "The component indice is not valid!"); return (pixel & componentMasks()[n]) >> componentShifts()[n]; }
     comp_type comp_i(size_t i) const {
@@ -375,9 +376,10 @@ namespace ImaGL {
       default: return comp<4>();
       }
     }
+    //Accessor to component for writing to pixel
     template<size_t n>
-    inline void comp(comp_type val) { throw std::logic_error("Not implemented! You definitly try to access a pixel component that doesn't exist."); }
-    void comp_i(size_t i, comp_type val) const {
+    void comp(comp_type val) { static_assert(n < nb_comp, "The component indice is not valid!"); pixel |= componentMasks()[n]; pixel &= ((val << componentShifts()[n]) & componentMasks()[n]); }
+    void comp_i(size_t i, comp_type val) {
       switch (i) {
       case 0:  comp<0>(val); break;
       case 1:  comp<1>(val); break;
@@ -547,6 +549,7 @@ namespace ImaGL {
     static constexpr size_t               pixel_size()   { return pixelsize; }
     static constexpr bool                 is_packed()    { return !std::is_pointer_v<typename pack_type::type>; }
     //Accessors to components
+    //For reading pixel
     template<size_t n>
     comp_type comp() const {
       if constexpr (!is_packed())
@@ -573,6 +576,49 @@ namespace ImaGL {
       case 3:
         if constexpr (NbComp<pf>::val > 3)
           return comp<3>();
+        else
+          throw std::runtime_error("You tried to access a pixel component that doesn't exist");
+      default: throw std::runtime_error("You tried to access a pixel component that doesn't exist");
+      }
+    }
+    //For writing to pixel
+    template<size_t n>
+    void comp(comp_type val) {
+      if constexpr (!is_packed())
+        *(reinterpret_cast<comp_type*>(&m_pix[n * sizeof(comp_type)])) = val;
+      else
+      {
+        pack_type* pointer = reinterpret_cast<pack_type*>(&m_pix);
+        pointer->template comp<n>(val);
+      }
+    }
+    void comp_i(size_t i, comp_type val) {
+      switch (i) {
+      case 0: 
+        comp<0>(val); 
+        return;
+      case 1:
+        if constexpr (NbComp<pf>::val > 1)
+        {
+          comp<1>(val);
+          return;
+        }
+        else
+          throw std::runtime_error("You tried to access a pixel component that doesn't exist");
+      case 2:
+        if constexpr (NbComp<pf>::val > 2)
+        {
+          comp<2>(val);
+          return;
+        }
+        else
+          throw std::runtime_error("You tried to access a pixel component that doesn't exist");
+      case 3:
+        if constexpr (NbComp<pf>::val > 3)
+        {
+          comp<3>(val);
+          return;
+        }
         else
           throw std::runtime_error("You tried to access a pixel component that doesn't exist");
       default: throw std::runtime_error("You tried to access a pixel component that doesn't exist");

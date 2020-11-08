@@ -45,7 +45,7 @@ Image are described row by row from top left corner to bottom right one. There i
 
 Pixel format and type are choosen to be as close as the one in the file, with never loosing data.
 
-Some helper class templates can be usefull to read pixels. The most important is `Pixel<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>` that you can cast from `CImaGL::pixels()`.
+Some helper class templates can be usefull to read/write pixels. The most important is `Pixel<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>` that you can cast from `CImaGL::pixels()`.
 
 ``` cpp
 //Suppose that img is a RGBA / UShort image.
@@ -64,6 +64,20 @@ unsigned short _R = pix_4_42.comp_i_(0); //Red
 unsigned short _G = pix_4_42.comp_i_(1); //Green
 unsigned short _B = pix_4_42.comp_i_(2); //Blue
 unsigned short _A = pix_4_42.comp_i_(3); //Alpha
+
+//You can also write data to pixel with:
+PixelType* pixW = reinterpret_cast<PixelType*>(img.pixels());
+PixelType& pixW_4_42 = pixW[4*img.width() + 42];
+//Set its color components with template function:
+pixW_4_42.comp<0>(R); //Red
+pixW_4_42.comp<1>(G); //Green
+pixW_4_42.comp<2>(B); //Blue
+pixW_4_42.comp<3>(A); //Alpha
+//Set its color components with "normal" function (but not so efficiently):
+pixW_4_42.comp_i_(0, R); //Red
+pixW_4_42.comp_i_(1, G); //Green
+pixW_4_42.comp_i_(2, B); //Blue
+pixW_4_42.comp_i_(3, A); //Alpha
 ```
 
 The last example also work if pixel is a packed type (such as `ImaGL::CImaGL::EPixelType::UByte_5_5_3`).

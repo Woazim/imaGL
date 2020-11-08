@@ -1,8 +1,8 @@
-# About these files
+# About dataset files
 
 ## PNG files
 
-bas*.png and z0*.png files are from [The "official" test-suite for PNG](http://www.schaik.com/pngsuite2011/pngsuite.html).
+`bas*.png` and `z0*.png` files are from [The "official" test-suite for PNG](http://www.schaik.com/pngsuite2011/pngsuite.html).
 
 ## TXT files
 

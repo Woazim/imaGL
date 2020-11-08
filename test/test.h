@@ -49,7 +49,7 @@ void test_readingPixels(unsigned char* rawData)
 {
   REQUIRE(sizeof(PixelType) == PixelType::pixel_size());
   //Testing with pointer cast
-  PixelType* pPix = reinterpret_cast<PixelType*>(rawData);
+  const PixelType* pPix = reinterpret_cast<const PixelType*>(rawData);
   for (size_t iPix = 0; iPix < 2; ++iPix)
   {
     if constexpr (PixelType::is_packed())
@@ -71,5 +71,43 @@ void test_readingPixels(unsigned char* rawData)
         CHECK(valCompPix == valCompRaw);
       }
     }
+  }
+}
+
+template<typename PixelType>
+void test_writingPixels()
+{
+  unsigned char rawData[PixelType::pixel_size() * 2];
+  PixelType* pixelForWriting = reinterpret_cast<PixelType*>(rawData);
+  const PixelType* pixelForReading = reinterpret_cast<const PixelType*>(rawData);
+  for (size_t iPix = 0; iPix < 2; ++iPix)
+  {
+    if constexpr (PixelType::is_packed())
+    {
+      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
+      {
+        using pack_type = typename PixelType::pack_type;
+        typename PixelType::comp_type valCompW = (typename PixelType::comp_type)rand();
+        pixelForWriting[iPix].comp_i(i, valCompW);
+
+        typename PixelType::comp_type valCompR;
+        valCompR = pixelForReading[iPix].comp_i(i);
+        CHECK(((((size_t)valCompW << pack_type::componentShifts()[i]) & pack_type::componentMasks()[i]) >> pack_type::componentShifts()[i]) == valCompR);
+      }
+    }
+    else
+    {
+      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
+      {
+        typename PixelType::comp_type valCompW = (typename PixelType::comp_type)rand();
+        pixelForWriting[iPix].comp_i(i, valCompW);
+
+        typename PixelType::comp_type valCompR;
+        valCompR = pixelForReading[iPix].comp_i(i);
+        CHECK(valCompW == valCompR);
+      }
+
+    }
+
   }
 }

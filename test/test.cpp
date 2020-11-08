@@ -307,3 +307,104 @@ TEST_CASE("Pixel casts for reading", "[pixelcast-reading]")
     CHECK(i == nRawSize);
   }
 }
+
+TEST_CASE("Pixel casts for writing", "[pixelcast-writing]")
+{
+  for (size_t test = 0; test < 10; ++test)
+  {
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::Byte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::Byte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::Byte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::Byte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::Byte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::Byte>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::Float>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::Float>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::Float>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::Float>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::Float>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::Float>>();
+
+    //Not supported yet. Need to add an external library to support half float (16bits float)
+    //http://half.sourceforge.net could be a solution
+    /*test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R,     ImaGL::CImaGL::EPixelType::HFloat>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG,    ImaGL::CImaGL::EPixelType::HFloat>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB,   ImaGL::CImaGL::EPixelType::HFloat>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR,   ImaGL::CImaGL::EPixelType::HFloat>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA,  ImaGL::CImaGL::EPixelType::HFloat>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA,  ImaGL::CImaGL::EPixelType::HFloat>>();*/
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::Int>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::Int>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::Int>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::Int>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::Int>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::Int>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::Short>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::Short>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::Short>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::Short>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::Short>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::Short>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UByte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UByte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UByte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UByte>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UByte>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UInt>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UInt>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UInt>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UInt>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UInt>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UInt>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::R, ImaGL::CImaGL::EPixelType::UShort>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RG, ImaGL::CImaGL::EPixelType::UShort>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UShort>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UShort>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UShort>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte_3_3_2>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UByte_3_3_2>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UByte_2_3_3_Rev>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UByte_2_3_3_Rev>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UShort_5_6_5>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UShort_5_6_5>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGB, ImaGL::CImaGL::EPixelType::UShort_5_6_5_Rev>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGR, ImaGL::CImaGL::EPixelType::UShort_5_6_5_Rev>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort_4_4_4_4>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UShort_4_4_4_4>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort_4_4_4_4_Rev>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UShort_4_4_4_4_Rev>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort_5_5_5_1>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UShort_5_5_5_1>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UShort_1_5_5_5_Rev>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UShort_1_5_5_5_Rev>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UInt_10_10_10_2>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UInt_10_10_10_2>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UInt_2_10_10_10_Rev>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UInt_2_10_10_10_Rev>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UInt_8_8_8_8>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UInt_8_8_8_8>>();
+
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::RGBA, ImaGL::CImaGL::EPixelType::UInt_8_8_8_8_Rev>>();
+    test_writingPixels<ImaGL::Pixel<ImaGL::CImaGL::EPixelFormat::BGRA, ImaGL::CImaGL::EPixelType::UInt_8_8_8_8_Rev>>();
+
+  }
+}

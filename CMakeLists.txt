@@ -59,17 +59,11 @@ else()
 endif()
 conan_basic_setup(TARGETS)
 
-# if(SUPPORT_PNG)
-# 	find_package(PNG REQUIRED CONFIG)
-# endif()
-
 set(CMAKE_DEBUG_POSTFIX d)
 
-# Incluez les sous-projets.
 add_subdirectory ("imaGL")
 
 if(BUILD_TESTING)
-	#find_package(Catch2 REQUIRED CONFIG)
 	enable_testing()
 	add_subdirectory ("test")
 endif()

@@ -2,7 +2,6 @@ cmake_minimum_required (VERSION 3.8)
 
 project("testProg")
 
-# Ajoutez une source à l'exécutable de ce projet.
 add_executable (testProg)
 file(GLOB testProg_SRC "*.h" "*.cpp")
 target_sources(testProg PRIVATE ${testProg_SRC})
@@ -22,12 +21,19 @@ endif()
 
 target_link_libraries(testProg libImaGL)
 
-file(GLOB testPngFiles "*.png" "*.png.txt")
+# copy dataset files
+file(GLOB testPngFiles "dataset/*.png" "dataset/*.png.txt")
 add_custom_command(TARGET testProg POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
                        ${testPngFiles}
-                       $<TARGET_FILE:libImaGL>
                            $<TARGET_FILE_DIR:testProg>)
+# copy dynamic linked library
+if(NOT STATIC_LIB)
+    add_custom_command(TARGET testProg POST_BUILD
+                       COMMAND ${CMAKE_COMMAND} -E copy_if_different 
+                           $<TARGET_FILE:libImaGL>
+                               $<TARGET_FILE_DIR:testProg>)
+endif()
 
 set_property(TARGET testProg PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
@@ -66,3 +72,4 @@ add_test(NAME Reading_z06n2c08.png COMMAND testProg [z06n2c08] WORKING_DIRECTORY
 add_test(NAME Reading_z09n2c08.png COMMAND testProg [z09n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
 add_test(NAME Pixel_casts_for_reading COMMAND testProg [pixelcast-reading] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Pixel_casts_for_writing COMMAND testProg [pixelcast-writing] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
