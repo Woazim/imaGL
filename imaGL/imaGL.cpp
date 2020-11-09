@@ -139,11 +139,15 @@ namespace ImaGL {
     m_pData->m_nWidth = width;
     m_pData->m_vRawData.resize((size_t)width * height * m_pData->m_nPixelSize);
 
-    //if (height > lastHeight)
-    //  upscale_y(tempImg, m_pData);
-    //else if (width < lastHeight)
-    //  downscale_y(tempImg, m_pData);
-    //else
+    if (height > lastHeight)
+    {
+      //upscale_y(tempImg, m_pData);
+    }
+    else if (height < lastHeight)
+    {
+      downscale_y(tempImg, *m_pData);
+    }
+    else
       *m_pData = tempImg;
   }
 

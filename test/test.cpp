@@ -409,17 +409,25 @@ TEST_CASE("Pixel casts for writing", "[pixelcast-writing]")
   }
 }
 
+
 TEST_CASE("Downscaling image", "[downscaling]")
 {
+#define resize_img_to(width, height) \
+  ImaGL::CImaGL img_##width##_##height(img);\
+  img_##width##_##height.rescale(width, height);\
+  export_FITS_file(img_##width##_##height, "downscaling_"#width"_"#height".fit")
+
   ImaGL::CImaGL img("test-16b.png");
 
-  ImaGL::CImaGL img_128_100(img);
-  img_128_100.rescale(128, 100);
+  resize_img_to(128, 100);
+  resize_img_to(32, 100);
+  resize_img_to(35, 100);
 
-  export_FITS_file(img_128_100, "downscaling.fit");
+  resize_img_to(200, 64);
+  resize_img_to(200, 32);
+  resize_img_to(200, 35);
 
-  ImaGL::CImaGL img_32_100(img);
-  img_32_100.rescale(32, 100);
-  export_FITS_file(img_32_100, "downscaling2.fit");
+  resize_img_to(40, 20);
 
+#undef resize_img_to
 }
