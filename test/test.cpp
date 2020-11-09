@@ -408,3 +408,18 @@ TEST_CASE("Pixel casts for writing", "[pixelcast-writing]")
 
   }
 }
+
+TEST_CASE("Downscaling image", "[downscaling]")
+{
+  ImaGL::CImaGL img("test-16b.png");
+
+  ImaGL::CImaGL img_128_100(img);
+  img_128_100.rescale(128, 100);
+
+  export_FITS_file(img_128_100, "downscaling.fit");
+
+  ImaGL::CImaGL img_32_100(img);
+  img_32_100.rescale(32, 100);
+  export_FITS_file(img_32_100, "downscaling2.fit");
+
+}

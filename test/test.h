@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 #include "../imaGL/imaGL.h"
 #include <catch2/catch.hpp>
 
@@ -111,3 +112,5 @@ void test_writingPixels()
 
   }
 }
+
+void export_FITS_file(const ImaGL::CImaGL& img, std::string strFileName);

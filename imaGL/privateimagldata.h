@@ -14,4 +14,17 @@ namespace ImaGL {
     size_t m_nPixelSize = 0;
   };
 
+  template<typename PixelType>
+  long long t_long_component_at(const SPrivateImaGLData& img, size_t row, size_t col, size_t component)
+  {
+    const PixelType* pPixels = reinterpret_cast<const PixelType*>(img.m_vRawData.data());
+    return static_cast<long long>(pPixels[row * img.m_nWidth + col].comp_i(component));
+  }
+
+  template<typename PixelType>
+  float t_float_component_at(const SPrivateImaGLData& img, size_t row, size_t col, size_t component)
+  {
+    const PixelType* pPixels = reinterpret_cast<const PixelType*>(img.m_vRawData.data());
+    return static_cast<float>(pPixels[row * img.m_nWidth + col].comp_i(component));
+  }
 }

@@ -7,9 +7,12 @@
 #include <algorithm>
 #include <fstream>
 #include <cassert>
+#include "rescale.h"
 
 namespace ImaGL {
 
+  _create_fnMap(t_long_component_at);
+  _create_fnMap(t_float_component_at);
 
   CImaGL::CImaGL(std::string_view filename)
     : m_pData(new SPrivateImaGLData)
@@ -33,6 +36,7 @@ namespace ImaGL {
   }
 
   CImaGL::CImaGL(std::istream& is, CFileFormat formatSig)
+    : m_pData(new SPrivateImaGLData)
   {
     if(!is.good())
       throw std::runtime_error("Invalid stream");
@@ -42,57 +46,72 @@ namespace ImaGL {
     computePixelSize();
   }
 
+  CImaGL::CImaGL(const CImaGL& img)
+    : m_pData(new SPrivateImaGLData)
+  {
+    *m_pData = *img.m_pData;
+  }
+
+  CImaGL::CImaGL(CImaGL&& img)
+  {
+    m_pData = img.m_pData;
+    img.m_pData = nullptr;
+  }
+
   CImaGL::~CImaGL()
   {
     delete m_pData;
   }
 
-  void CImaGL::upscale_x(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  CImaGL& CImaGL::operator=(const CImaGL& img)
   {
-  }
+    if (this == &img)
+      return *this;
 
+    if (!m_pData)
+      m_pData = new SPrivateImaGLData;
+    *m_pData = *img.m_pData;
 
-  //A passer en template dans un autre scale.h
-  //templeter par le type de pixel
-  //type de pixe à déterminer dans rescale()
-  void CImaGL::downscale_x_by2(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
-  {
-    dest.m_nHeight = source.m_nHeight;
-    dest.m_nWidth = source.m_nWidth / 2;
-    dest.m_PixelFormat = source.m_PixelFormat;
-    dest.m_PixelType = source.m_PixelType;
-    dest.m_nPixelSize = source.m_nPixelSize;
-    dest.m_vRawData.resize(dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-
-    //for (size_t row = 0; row < dest.m_nHeight; ++row)
-    //  for (size_t col = 0; col < dest.m_nWidth; ++col)
-    //  {
-    //    dest.m_vRawData[]
-    //  }
-  }
-
-  void CImaGL::upscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
-  {
-  }
-
-  void CImaGL::downscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
-  {
+    return *this;
   }
 
   void CImaGL::computePixelSize()
   {
-    m_pData->m_nPixelSize = ImaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
+    if(m_pData)
+      m_pData->m_nPixelSize = ImaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
   }
 
-  const unsigned char* CImaGL::pixels()      const { return m_pData->m_vRawData.data(); }
-  size_t               CImaGL::width()       const { return m_pData->m_nWidth; }
-  size_t               CImaGL::height()      const { return m_pData->m_nHeight; }
-  CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData->m_PixelFormat; }
-  CImaGL::EPixelType   CImaGL::pixeltype()   const { return m_pData->m_PixelType; }
-  size_t               CImaGL::pixelsize()   const { return m_pData->m_nPixelSize; }
+  const unsigned char* CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
+  size_t               CImaGL::width()       const { return m_pData ? m_pData->m_nWidth : 0; }
+  size_t               CImaGL::height()      const { return m_pData ? m_pData->m_nHeight : 0; }
+  CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData ? m_pData->m_PixelFormat : EPixelFormat::Undefined; }
+  CImaGL::EPixelType   CImaGL::pixeltype()   const { return m_pData ? m_pData->m_PixelType : EPixelType::Undefined; }
+  size_t               CImaGL::pixelsize()   const { return m_pData ? m_pData->m_nPixelSize : 0; }
+
+  size_t CImaGL::nb_comp() const
+  {
+    if (!m_pData) return 0;
+    static auto fnMap = create_fnMap(t_nb_comp);
+    return fnMap[fn_pixel_type_id(m_pData->m_PixelFormat, m_pData->m_PixelType)]();
+  }
+
+  long long CImaGL::long_component_at(size_t row, size_t col, size_t component) const
+  {
+    if (!m_pData) return 0;
+    static auto fnMap = create_fnMap(t_long_component_at);
+    return fnMap[fn_pixel_type_id(m_pData->m_PixelFormat, m_pData->m_PixelType)](*m_pData, row, col, component);
+  }
+
+  float CImaGL::float_component_at(size_t row, size_t col, size_t component) const
+  {
+    if (!m_pData) return 0;
+    static auto fnMap = create_fnMap(t_float_component_at);
+    return fnMap[fn_pixel_type_id(m_pData->m_PixelFormat, m_pData->m_PixelType)](*m_pData, row, col, component);
+  }
 
   void CImaGL::rescale(int width, int height)
   {
+    if (!m_pData) return;
     const size_t lastHeight = m_pData->m_nHeight;
 
     //First, rescale image along x
@@ -104,24 +123,28 @@ namespace ImaGL {
     tempImg.m_nPixelSize = m_pData->m_nPixelSize;
     tempImg.m_vRawData.resize(tempImg.m_nWidth * tempImg.m_nHeight * tempImg.m_nPixelSize);
 
-    //if (width > m_pData->m_nWidth)
-    //  upscale_x(m_pData, tempImg);
-    //else if (width < m_pData->m_nWidth)
-    //  downscale_x(m_pData, tempImg);
-    //else
-    //  tempImg = *m_pData;
+    if (width > m_pData->m_nWidth)
+    {
+      //upscale_x(m_pData, tempImg);
+    }
+    else if (width < m_pData->m_nWidth)
+    {
+      downscale_x(*m_pData, tempImg);
+    }
+    else
+      tempImg = *m_pData;
 
     //Then, rescale image along y
     m_pData->m_nHeight = height;
     m_pData->m_nWidth = width;
-    m_pData->m_vRawData.resize(width * height * m_pData->m_nPixelSize);
+    m_pData->m_vRawData.resize((size_t)width * height * m_pData->m_nPixelSize);
 
     //if (height > lastHeight)
     //  upscale_y(tempImg, m_pData);
     //else if (width < lastHeight)
     //  downscale_y(tempImg, m_pData);
     //else
-    //  *m_pData = tempImg;
+      *m_pData = tempImg;
   }
 
 }
