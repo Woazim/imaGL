@@ -7,7 +7,7 @@ void export_FITS_file(const ImaGL::CImaGL& img, std::string strFileName)
   using namespace ImaGL;
   static auto fnMap = create_fnMap(t_nb_comp);
 
-  size_t bitpix;
+  int bitpix;
   long long datamin, datamax;
   switch (img.pixelsize() / img.nb_comp())
   {

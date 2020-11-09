@@ -646,13 +646,13 @@ namespace ImaGL {
     PixelAccumulator& operator+=(const pixel_type& pix)
     {
       static_assert(nNbComp == NbComp<pixel_type::pixel_format()>::val);
-      m_pix[0] += pix.comp<0>();
+      m_pix[0] += pix.template comp<0>();
       if constexpr (nNbComp > 1)
-        m_pix[1] += pix.comp<1>();
+        m_pix[1] += pix.template comp<1>();
       if constexpr (nNbComp > 2)
-        m_pix[2] += pix.comp<2>();
+        m_pix[2] += pix.template comp<2>();
       if constexpr (nNbComp > 3)
-        m_pix[3] += pix.comp<3>();
+        m_pix[3] += pix.template comp<3>();
       return *this;
     }
 
@@ -694,9 +694,9 @@ namespace ImaGL {
         ret.m_pix[0] = m_pix[0] + fp.m_pix[0];
         if constexpr (NbComp<pf>::val > 1)
           ret.m_pix[1] = m_pix[1] + fp.m_pix[1];
-        if constexpr (NbComp<pf>::val > 1)
+        if constexpr (NbComp<pf>::val > 2)
           ret.m_pix[2] = m_pix[2] + fp.m_pix[2];
-        if constexpr (NbComp<pf>::val > 1)
+        if constexpr (NbComp<pf>::val > 3)
           ret.m_pix[3] = m_pix[3] + fp.m_pix[3];
         return ret;
       }
@@ -718,13 +718,13 @@ namespace ImaGL {
 
     Pixel& operator=(const accum_type& accumulator)
     {
-      comp<0>(static_cast<comp_type>(accumulator.comp<0>()));
+      comp<0>(static_cast<comp_type>(accumulator.template comp<0>()));
       if constexpr (NbComp<pf>::val > 1)
-        comp<1>(static_cast<comp_type>(accumulator.comp<1>()));
+        comp<1>(static_cast<comp_type>(accumulator.template comp<1>()));
       if constexpr (NbComp<pf>::val > 2)
-        comp<2>(static_cast<comp_type>(accumulator.comp<2>()));
+        comp<2>(static_cast<comp_type>(accumulator.template comp<2>()));
       if constexpr (NbComp<pf>::val > 3)
-        comp<3>(static_cast<comp_type>(accumulator.comp<3>()));
+        comp<3>(static_cast<comp_type>(accumulator.template comp<3>()));
       return *this;
     }
 
