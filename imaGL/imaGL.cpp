@@ -52,7 +52,7 @@ namespace ImaGL {
     *m_pData = *img.m_pData;
   }
 
-  CImaGL::CImaGL(CImaGL&& img)
+  CImaGL::CImaGL(CImaGL&& img) noexcept
   {
     m_pData = img.m_pData;
     img.m_pData = nullptr;
@@ -81,7 +81,7 @@ namespace ImaGL {
       m_pData->m_nPixelSize = ImaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
   }
 
-  const unsigned char* CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
+  const std::byte* CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
   size_t               CImaGL::width()       const { return m_pData ? m_pData->m_nWidth : 0; }
   size_t               CImaGL::height()      const { return m_pData ? m_pData->m_nHeight : 0; }
   CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData ? m_pData->m_PixelFormat : EPixelFormat::Undefined; }
@@ -109,7 +109,7 @@ namespace ImaGL {
     return fnMap[fn_pixel_type_id(m_pData->m_PixelFormat, m_pData->m_PixelType)](*m_pData, row, col, component);
   }
 
-  void CImaGL::rescale(int width, int height)
+  void CImaGL::rescale(size_t width, size_t height)
   {
     if (!m_pData) return;
     const size_t lastHeight = m_pData->m_nHeight;
@@ -125,7 +125,7 @@ namespace ImaGL {
 
     if (width > m_pData->m_nWidth)
     {
-      //upscale_x(m_pData, tempImg);
+      upscale_x(*m_pData, tempImg);
     }
     else if (width < m_pData->m_nWidth)
     {
@@ -141,7 +141,7 @@ namespace ImaGL {
 
     if (height > lastHeight)
     {
-      //upscale_y(tempImg, m_pData);
+      upscale_y(tempImg, *m_pData);
     }
     else if (height < lastHeight)
     {
@@ -149,6 +149,16 @@ namespace ImaGL {
     }
     else
       *m_pData = tempImg;
+  }
+
+  void CImaGL::rescaleToNextPowerOfTwo()
+  {
+    //When c++20 will be here, we could use std::bit_ceil here
+    //I propose here my own implementation
+#if __cpp_lib_int_pow2 == 202002L
+    using std::bit_ceil;
+#endif // __cpp_lib_int_pow2
+    rescale(bit_ceil(width()), bit_ceil(height()));
   }
 
 }

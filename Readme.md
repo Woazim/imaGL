@@ -38,7 +38,7 @@ CImaGL::EPixelType pt = img.pixeltype(); //This enum is directly compatible with
 // You just have to static_cast<GLenum> it.
 size_t ps = img.pixelsize(); //This is a convenient function which returns the size of a pixel in bytes.
 // For example, the pixesize is 8 for an RGBA / UShort image.
-const unsigned char* pixels = img.pixels(); //Finally, access to pixels
+const std::byte* pixels = img.pixels(); //Finally, access to pixels
 ```
 
 Image are described row by row from top left corner to bottom right one. There is no gap (such as memory alignement) between rows.

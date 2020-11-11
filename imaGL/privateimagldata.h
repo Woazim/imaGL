@@ -6,7 +6,7 @@ namespace ImaGL {
 
   struct SPrivateImaGLData
   {
-    std::vector<unsigned char> m_vRawData;
+    std::vector<std::byte> m_vRawData;
     size_t m_nWidth = 0;
     size_t m_nHeight = 0;
     CImaGL::EPixelFormat m_PixelFormat = CImaGL::EPixelFormat::Undefined;

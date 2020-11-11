@@ -8,27 +8,40 @@
 #include <catch2/catch.hpp>
 
 template<typename pixel_type>
-void test_reading(ImaGL::CImaGL::EPixelFormat pf, ImaGL::CImaGL::EPixelType pt, size_t nNbComponents, size_t width, size_t height, const char* filename)
+void test_reading(size_t width, size_t height, const ImaGL::CImaGL& img, std::string_view filename)
 {
-  ImaGL::CImaGL img(filename);
-
   CHECK(img.width() == width);
   CHECK(img.height() == height);
-  CHECK(img.pixelformat() == pf);
-  CHECK(img.pixeltype() == pt);
-  REQUIRE(img.pixelsize() == nNbComponents*sizeof(pixel_type)); //Here, it is required, otherwise next CHECK will crash
+  CHECK(img.pixelformat() == pixel_type::pixel_format());
+  CHECK(img.pixeltype() == pixel_type::pixel_type());
+  REQUIRE(img.pixelsize() == pixel_type::pixel_size()); //Here, it is required, otherwise next CHECK will crash
 
   //read expected pixels data from <filename>.txt
   std::ifstream ifs(std::string(filename) + ".txt");
   std::vector<pixel_type> pixels;
-  const size_t nSize = img.width() * img.height() * nNbComponents;
+  const size_t nSize = img.width() * img.height();
   pixels.reserve(nSize);
+  size_t iComp = 0;
+  pixel_type pixel;
   while (!ifs.eof())
   {
-    unsigned short val;
-    ifs >> val;
+    typename pixel_type::comp_type val;
+    if constexpr (sizeof(typename pixel_type::comp_type) == 1)
+    {
+      short valTemp;
+      ifs >> valTemp;
+      val = static_cast<typename pixel_type::comp_type>(valTemp);
+    }
+    else
+      ifs >> val;
     if (ifs.good())
-      pixels.push_back(static_cast<pixel_type>(val));
+    {
+      pixel.comp_i(iComp, val);
+      iComp++;
+      iComp %= pixel_type::nb_comp();
+      if(iComp == 0)
+        pixels.push_back(pixel);
+    }
   }
   REQUIRE(pixels.size() == nSize);
 
@@ -42,11 +55,12 @@ void test_reading(ImaGL::CImaGL::EPixelFormat pf, ImaGL::CImaGL::EPixelType pt, 
       break;
     }
   }
+  INFO("Check fails for row = " << i / img.width() << " col = " << i - (i / img.width()) * img.width() << ". Pixel should be " << *p1 << " but is " << *p2 << ".");
   CHECK(i == nSize);
 }
 
 template<typename PixelType>
-void test_readingPixels(unsigned char* rawData)
+void test_readingPixels(std::byte* rawData)
 {
   REQUIRE(sizeof(PixelType) == PixelType::pixel_size());
   //Testing with pointer cast
@@ -78,7 +92,7 @@ void test_readingPixels(unsigned char* rawData)
 template<typename PixelType>
 void test_writingPixels()
 {
-  unsigned char rawData[PixelType::pixel_size() * 2];
+  std::byte rawData[PixelType::pixel_size() * 2];
   PixelType* pixelForWriting = reinterpret_cast<PixelType*>(rawData);
   const PixelType* pixelForReading = reinterpret_cast<const PixelType*>(rawData);
   for (size_t iPix = 0; iPix < 2; ++iPix)
@@ -114,3 +128,20 @@ void test_writingPixels()
 }
 
 void export_FITS_file(const ImaGL::CImaGL& img, std::string strFileName);
+
+template<typename pixel_type>
+void test_img_rescale(const ImaGL::CImaGL& img, std::string_view strFileName, size_t width, size_t height)
+{
+  ImaGL::CImaGL img_scaled(img);
+  img_scaled.rescale(width, height);
+
+  //This comment is useful if you want to store your results in a file
+  //The file is in FITS file format
+  //std::stringstream ss;
+  //ss << strFileName << "_" << width << "_" << height << ".fit";
+  //export_FITS_file(img_scaled, ss.str());
+
+  std::stringstream ss2;
+  ss2 << strFileName << "_" << width << "_" << height << ".png";
+  test_reading<pixel_type>(width, height, img_scaled, ss2.str());
+}

@@ -228,12 +228,12 @@ namespace ImaGL {
     CImaGL(std::string_view filename);
     CImaGL(std::istream& is, CFileFormat format);
     CImaGL(const CImaGL& img);
-    CImaGL(CImaGL&& img);
+    CImaGL(CImaGL&& img) noexcept;
     ~CImaGL();
 
     CImaGL& operator=(const CImaGL& img);
 
-    const unsigned char*  pixels()      const;
+    const std::byte*  pixels()      const;
     size_t                width()       const;
     size_t                height()      const;
     EPixelFormat          pixelformat() const;
@@ -244,7 +244,7 @@ namespace ImaGL {
     long long long_component_at(size_t row, size_t col, size_t component) const;
     float     float_component_at(size_t row, size_t col, size_t component) const;
 
-    void rescale(int width, int height);
+    void rescale(size_t width, size_t height);
     void rescaleToNextPowerOfTwo();
   };
 
@@ -390,43 +390,43 @@ namespace ImaGL {
   };
 
   template<> struct Pack< CImaGL::EPixelType::UByte_3_3_2> {
-    using pixel_type = unsigned char;
-    using comp_type = unsigned char;
+    using pixel_type = uint8_t;
+    using comp_type = uint8_t;
     static const int nbComp = 3;
   };
   template<> struct Pack< CImaGL::EPixelType::UByte_2_3_3_Rev> {
-    using pixel_type = unsigned char;
-    using comp_type = unsigned char;
+    using pixel_type = uint8_t;
+    using comp_type = uint8_t;
     static const int nbComp = 3;
   };
   template<> struct Pack< CImaGL::EPixelType::UShort_5_5_5_1> {
     using pixel_type = unsigned short;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 4;
   };
   template<> struct Pack< CImaGL::EPixelType::UShort_1_5_5_5_Rev> {
     using pixel_type = unsigned short;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 4;
   };
   template<> struct Pack< CImaGL::EPixelType::UShort_4_4_4_4> {
     using pixel_type = unsigned short;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 4;
   };
   template<> struct Pack< CImaGL::EPixelType::UShort_4_4_4_4_Rev> {
     using pixel_type = unsigned short;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 4;
   };
   template<> struct Pack< CImaGL::EPixelType::UShort_5_6_5> {
     using pixel_type = unsigned short;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 3;
   };
   template<> struct Pack< CImaGL::EPixelType::UShort_5_6_5_Rev> {
     using pixel_type = unsigned short;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 3;
   };
   template<> struct Pack< CImaGL::EPixelType::UInt_10_10_10_2> {
@@ -441,12 +441,12 @@ namespace ImaGL {
   };
   template<> struct Pack< CImaGL::EPixelType::UInt_8_8_8_8> {
     using pixel_type = unsigned int;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 4;
   };
   template<> struct Pack< CImaGL::EPixelType::UInt_8_8_8_8_Rev> {
     using pixel_type = unsigned int;
-    using comp_type = unsigned char;
+    using comp_type = uint8_t;
     static const int nbComp = 4;
   };
 
@@ -539,12 +539,12 @@ namespace ImaGL {
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
   struct Comp { using type = void; using accum_type = void; };
 
-  template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::Byte> { using type = char; using accum_type = short; };
-  template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::Byte> { using type = char; using accum_type = short; };
-  template<> struct Comp<CImaGL::EPixelFormat::RGB,   CImaGL::EPixelType::Byte> { using type = char; using accum_type = short; };
-  template<> struct Comp<CImaGL::EPixelFormat::RGBA,  CImaGL::EPixelType::Byte> { using type = char; using accum_type = short; };
-  template<> struct Comp<CImaGL::EPixelFormat::BGR,   CImaGL::EPixelType::Byte> { using type = char; using accum_type = short; };
-  template<> struct Comp<CImaGL::EPixelFormat::BGRA,  CImaGL::EPixelType::Byte> { using type = char; using accum_type = short; };
+  template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
+  template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
+  template<> struct Comp<CImaGL::EPixelFormat::RGB,   CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
+  template<> struct Comp<CImaGL::EPixelFormat::RGBA,  CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
+  template<> struct Comp<CImaGL::EPixelFormat::BGR,   CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
+  template<> struct Comp<CImaGL::EPixelFormat::BGRA,  CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
 
   template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::Float> { using type = float; using accum_type = float; };
   template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::Float> { using type = float; using accum_type = float; };
@@ -567,12 +567,12 @@ namespace ImaGL {
   template<> struct Comp<CImaGL::EPixelFormat::BGR,   CImaGL::EPixelType::Short> { using type = short; using accum_type = int; };
   template<> struct Comp<CImaGL::EPixelFormat::BGRA,  CImaGL::EPixelType::Short> { using type = short; using accum_type = int; };
 
-  template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::UByte> { using type = unsigned char; using accum_type = unsigned short; };
-  template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::UByte> { using type = unsigned char; using accum_type = unsigned short; };
-  template<> struct Comp<CImaGL::EPixelFormat::RGB,   CImaGL::EPixelType::UByte> { using type = unsigned char; using accum_type = unsigned short; };
-  template<> struct Comp<CImaGL::EPixelFormat::RGBA,  CImaGL::EPixelType::UByte> { using type = unsigned char; using accum_type = unsigned short; };
-  template<> struct Comp<CImaGL::EPixelFormat::BGR,   CImaGL::EPixelType::UByte> { using type = unsigned char; using accum_type = unsigned short; };
-  template<> struct Comp<CImaGL::EPixelFormat::BGRA,  CImaGL::EPixelType::UByte> { using type = unsigned char; using accum_type = unsigned short; };
+  template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::UByte> { using type = uint8_t; using accum_type = unsigned short; };
+  template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::UByte> { using type = uint8_t; using accum_type = unsigned short; };
+  template<> struct Comp<CImaGL::EPixelFormat::RGB,   CImaGL::EPixelType::UByte> { using type = uint8_t; using accum_type = unsigned short; };
+  template<> struct Comp<CImaGL::EPixelFormat::RGBA,  CImaGL::EPixelType::UByte> { using type = uint8_t; using accum_type = unsigned short; };
+  template<> struct Comp<CImaGL::EPixelFormat::BGR,   CImaGL::EPixelType::UByte> { using type = uint8_t; using accum_type = unsigned short; };
+  template<> struct Comp<CImaGL::EPixelFormat::BGRA,  CImaGL::EPixelType::UByte> { using type = uint8_t; using accum_type = unsigned short; };
 
   template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::UInt> { using type = unsigned int; using accum_type = unsigned long; };
   template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::UInt> { using type = unsigned int; using accum_type = unsigned long; };
@@ -702,7 +702,7 @@ namespace ImaGL {
       }
     };
     static constexpr size_t pixelsize = computePixelSize(pf, pt);
-    unsigned char m_pix[pixelsize];
+    std::byte m_pix[pixelsize];
   public:
     //Type information about this class
     using comp_type = typename Comp<pf, pt>::type;
@@ -752,6 +752,21 @@ namespace ImaGL {
         ret.m_pix[3] = comp<3>() * scalar;
       return ret;
     }
+#ifdef __cpp_impl_three_way_comparison
+    bool operator==(const Pixel& pix) const = default;
+#else
+    bool operator==(const Pixel& pix) const
+    {
+      for (size_t i = 0; i < pixelsize; ++i)
+        if (m_pix[i] != pix.m_pix[i])
+          return false;
+      return true;
+    }
+    bool operator!=(const Pixel& pix) const
+    {
+      return !(*this == pix);
+    }
+#endif // __cpp_impl_three_way_comparison
 
     //Accessors to components
     //For reading pixel
@@ -837,7 +852,31 @@ namespace ImaGL {
   {
     return NbComp<PixelType::pixel_format()>::val;
   }
-  _create_fnMap(t_nb_comp)
+  _create_fnMap(t_nb_comp);
 
-
+  template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
+  std::ostream& operator<<(std::ostream& out, const Pixel<pf, pt>& pix)
+  {
+    if constexpr (sizeof(typename Pixel<pf, pt>::comp_type) == 1) // This is a char or unsigned char -> cast it to short to avoid to print character
+    {
+      out << static_cast<short>(pix.template comp<0>());
+      if constexpr (Pixel<pf, pt>::nb_comp() > 1)
+        out << " " << static_cast<short>(pix.template comp<1>());
+      if constexpr (Pixel<pf, pt>::nb_comp() > 2)
+        out << " " << static_cast<short>(pix.template comp<2>());
+      if constexpr (Pixel<pf, pt>::nb_comp() > 3)
+        out << " " << static_cast<short>(pix.template comp<3>());
+    }
+    else 
+    {
+      out << " " << pix.template comp<0>();
+      if constexpr (Pixel<pf, pt>::nb_comp() > 1)
+        out << " " << pix.template comp<1>();
+      if constexpr (Pixel<pf, pt>::nb_comp() > 2)
+        out << " " << pix.template comp<2>();
+      if constexpr (Pixel<pf, pt>::nb_comp() > 3)
+        out << " " << pix.template comp<3>();
+    }
+    return out;
+  }
 }

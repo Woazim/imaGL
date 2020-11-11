@@ -25,7 +25,7 @@ namespace ImaGL {
     is.seekg(0, is.beg);
     char sig[PNG_SIG_LENGTH];
     is.read(sig, PNG_SIG_LENGTH);
-    if (png_sig_cmp(reinterpret_cast<unsigned char*>(sig), 0, PNG_SIG_LENGTH))
+    if (png_sig_cmp(reinterpret_cast<png_const_bytep>(sig), 0, PNG_SIG_LENGTH))
       throw bad_format("This data is not a PNG file");
 
     //Create png_struct / png_info
@@ -107,17 +107,17 @@ namespace ImaGL {
     ret.m_PixelType = m_pt;
     size_t pixelSize = computePixelSize(m_pf, m_pt);
     //Buffer for image
-    std::vector<png_byte> data;
+    std::vector<std::byte> data;
     data.resize(ret.m_nWidth * ret.m_nHeight * pixelSize);
     //Pointers to row starts
-    std::vector<png_bytep> row_pointers;
+    std::vector<std::byte*> row_pointers;
     row_pointers.resize(ret.m_nHeight);
     for (size_t i = 0; i < ret.m_nHeight; ++i)
       row_pointers[i] = data.data() + i * ret.m_nWidth * pixelSize;
     //png_set_rows(png_ptr, info_ptr, row_pointers.data());
 
     //read the image
-    png_read_image(png_ptr, row_pointers.data());
+    png_read_image(png_ptr, reinterpret_cast<png_bytepp>(row_pointers.data()));
 
     png_read_end(png_ptr, nullptr); //Needed to put the read position of the stream at the end of PNG stream.
 
