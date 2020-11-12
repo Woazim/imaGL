@@ -55,7 +55,8 @@ void test_reading(size_t width, size_t height, const ImaGL::CImaGL& img, std::st
       break;
     }
   }
-  INFO("Check fails for row = " << i / img.width() << " col = " << i - (i / img.width()) * img.width() << ". Pixel should be " << *p1 << " but is " << *p2 << ".");
+  if (i != nSize)
+    INFO("Check fails for row = " << i / img.width() << " col = " << i - (i / img.width()) * img.width() << ". Pixel should be " << *p1 << " but is " << *p2 << ".");
   CHECK(i == nSize);
 }
 
