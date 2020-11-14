@@ -105,14 +105,21 @@ mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
+cmake --install . --config Release
 ```
 
-This invocation should configure, build then install imaGL. It has been tested on Windows with Visual Studio 2019 and Linux with gcc 9.3.
+This invocation should configure, build then install imaGL. It has been tested on Windows 10 with Visual Studio 2019, Linux (Ubuntu 20.04) with gcc 9.3 and mac OSX Catalina (10.15.5) with XCode 11.4.1 (Apple-CLang 11.0.3).
+
+Optionnaly, you can append `--prefix <dir>` at `cmake --install` command line to choose your installation directory.
 
 ### Customizing compilation and installation
 
 You can use cmake-gui or ccmake to configure your build. Possible options are:
 
+- BUILD_DOCUMENTATION
+  - Allows to build doxygen documentation
+  - Dependencies doxygen. You must install doxygen first by your own.
+  - Default OFF
 - BUILD_TESTING
   - Allows to build unit tests
   - Dependencies catch2 >= 2.13.2

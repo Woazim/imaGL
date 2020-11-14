@@ -1,6 +1,6 @@
 #pragma once
 
-#include "imaGL.h"
+#include "public/imaGL.h"
 
 namespace imaGL {
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "loader.h"
-#include "imaGL.h"
+#include "public/imaGL.h"
 
 #ifdef _HAS_PNG
 #include <png.h>

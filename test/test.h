@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <fstream>
 #include <sstream>
-#include "../imaGL/imaGL.h"
+#include <imaGL.h>
 #include <catch2/catch.hpp>
 
 template<typename pixel_type>

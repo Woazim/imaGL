@@ -4,6 +4,7 @@
 project ("imaGL" VERSION 0.1 DESCRIPTION "A lightweight lib to load images in OpenGL applications")
 
 option(BUILD_TESTING "Build test program" OFF)
+option(BUILD_DOCUMENTATION "Build doxygen documentation" OFF)
 option(STATIC_LIB "Build ImaGL as a static library" OFF)
 option(SUPPORT_PNG "Build ImaGL with PNG file format support" ON)
 
@@ -71,4 +72,6 @@ if(BUILD_TESTING)
 	add_subdirectory ("test")
 endif()
 
-add_subdirectory("doc")
+if(BUILD_DOCUMENTATION)
+	add_subdirectory("doc")
+endif()

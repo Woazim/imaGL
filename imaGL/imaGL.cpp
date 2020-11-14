@@ -1,7 +1,7 @@
 // imaGL.cpp : Définit les fonctions de la bibliothèque statique.
 //
 
-#include "imaGL.h"
+#include "public/imaGL.h"
 #include "privateimagldata.h"
 #include "loader_factory.h"
 #include <algorithm>
