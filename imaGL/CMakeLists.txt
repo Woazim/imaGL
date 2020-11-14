@@ -9,6 +9,7 @@ else()
     add_library (libImaGL SHARED)
 endif()
 set_property(TARGET libImaGL PROPERTY OUTPUT_NAME imaGL)
+set_property(TARGET libImaGL PROPERTY PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/public/imaGL.h")
 target_include_directories(libImaGL INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/public")
 
 if(TARGET CONAN_PKG::libpng)
