@@ -1,7 +1,7 @@
 #include "loader_factory.h"
 #include "privateimagldata.h"
 
-namespace ImaGL {
+namespace imaGL {
 
   CLoaderFactory::CLoaderFactory()
   {

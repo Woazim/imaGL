@@ -4,7 +4,7 @@
 #include <bit>
 #endif // __cpp_lib_int_pow2
 
-namespace ImaGL {
+namespace imaGL {
 
 #if __cpp_lib_int_pow2 != 202002L
   template<typename T>

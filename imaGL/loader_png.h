@@ -5,7 +5,7 @@
 #ifdef _HAS_PNG
 #include <png.h>
 
-namespace ImaGL {
+namespace imaGL {
 
   class CLoaderPNG :
     public ILoader

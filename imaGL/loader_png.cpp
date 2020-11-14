@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <bit>
 
-namespace ImaGL {
+namespace imaGL {
 
   void CLoaderPNG::png_read_fn(png_structp png_ptr, png_bytep data, size_t length)
   {
@@ -16,7 +16,7 @@ namespace ImaGL {
       throw std::runtime_error("Unexpected end of PNG data");
   }
 
-  SPrivateImaGLData ImaGL::CLoaderPNG::load(std::istream& is)
+  SPrivateImaGLData imaGL::CLoaderPNG::load(std::istream& is)
   {
     const size_t PNG_SIG_LENGTH = 8; //Must not exceed 8 (according to PNG spec)
     SPrivateImaGLData ret;

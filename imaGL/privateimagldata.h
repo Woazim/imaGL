@@ -2,7 +2,7 @@
 
 #include "imaGL.h"
 
-namespace ImaGL {
+namespace imaGL {
 
   struct SPrivateImaGLData
   {

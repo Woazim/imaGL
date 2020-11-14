@@ -3,7 +3,7 @@
 #include <memory>
 #include <stdexcept>
 
-namespace ImaGL {
+namespace imaGL {
 
   struct SPrivateImaGLData;
 

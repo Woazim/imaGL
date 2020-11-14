@@ -5,7 +5,7 @@
 #include <map>
 #include <set>
 
-namespace ImaGL {
+namespace imaGL {
 
   //Special loader when type is unknown
   class CLoaderUnknown : public ILoader

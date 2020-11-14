@@ -9,7 +9,7 @@
 #include <cassert>
 #include "rescale.h"
 
-namespace ImaGL {
+namespace imaGL {
 
   _create_fnMap(t_long_component_at);
   _create_fnMap(t_float_component_at);
@@ -78,7 +78,7 @@ namespace ImaGL {
   void CImaGL::computePixelSize()
   {
     if(m_pData)
-      m_pData->m_nPixelSize = ImaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
+      m_pData->m_nPixelSize = imaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
   }
 
   const std::byte* CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
@@ -88,12 +88,26 @@ namespace ImaGL {
   CImaGL::EPixelType   CImaGL::pixeltype()   const { return m_pData ? m_pData->m_PixelType : EPixelType::Undefined; }
   size_t               CImaGL::pixelsize()   const { return m_pData ? m_pData->m_nPixelSize : 0; }
 
+  //Comments are here to explain the example included in documentation
+  //! [use of a function family]
   size_t CImaGL::nb_comp() const
   {
+    //m_pData is a pointer to the opaque SPrivateImaGLData
+    //It contains m_PixelFormat and m_PixelType members which respectly are 
+    //the CImaGL::EPixelFormat and CImaGL::EPixelType values of the pixels 
+    //stored in the CImaGL object.
     if (!m_pData) return 0;
+
+    //fnMap is set static to be initialised only at the first run; create_fnMap create a std::map with 72 items.
     static auto fnMap = create_fnMap(t_nb_comp);
+
+    //The created map associates pixel_type_id values to corresponding realisation 
+    //of the t_nb_comp template.
+    //Here fn_pixel_type_id helper function is used to compute pixel_type_id from 
+    //CImaGL::EPixelFormat and CImaGL::EPixelType values.
     return fnMap[fn_pixel_type_id(m_pData->m_PixelFormat, m_pData->m_PixelType)]();
   }
+  //! [use of a function family]
 
   long long CImaGL::long_component_at(size_t row, size_t col, size_t component) const
   {

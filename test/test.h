@@ -8,7 +8,7 @@
 #include <catch2/catch.hpp>
 
 template<typename pixel_type>
-void test_reading(size_t width, size_t height, const ImaGL::CImaGL& img, std::string_view filename)
+void test_reading(size_t width, size_t height, const imaGL::CImaGL& img, std::string_view filename)
 {
   CHECK(img.width() == width);
   CHECK(img.height() == height);
@@ -70,7 +70,7 @@ void test_readingPixels(std::byte* rawData)
   {
     if constexpr (PixelType::is_packed())
     {
-      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
+      for (size_t i = 0; i < imaGL::NbComp<PixelType::pixel_format()>::val; ++i)
       {
         using pack_type = typename PixelType::pack_type;
         unsigned long valCompPix = pPix[iPix].comp_i(i);
@@ -80,7 +80,7 @@ void test_readingPixels(std::byte* rawData)
     }
     else
     {
-      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
+      for (size_t i = 0; i < imaGL::NbComp<PixelType::pixel_format()>::val; ++i)
       {
         unsigned long valCompPix = (unsigned long)pPix[iPix].comp_i(i);
         unsigned long valCompRaw = (unsigned long)*reinterpret_cast<typename PixelType::comp_type*>(rawData + iPix * PixelType::pixel_size() + i * sizeof(typename PixelType::comp_type));
@@ -100,7 +100,7 @@ void test_writingPixels()
   {
     if constexpr (PixelType::is_packed())
     {
-      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
+      for (size_t i = 0; i < imaGL::NbComp<PixelType::pixel_format()>::val; ++i)
       {
         using pack_type = typename PixelType::pack_type;
         typename PixelType::comp_type valCompW = (typename PixelType::comp_type)rand();
@@ -113,7 +113,7 @@ void test_writingPixels()
     }
     else
     {
-      for (size_t i = 0; i < ImaGL::NbComp<PixelType::pixel_format()>::val; ++i)
+      for (size_t i = 0; i < imaGL::NbComp<PixelType::pixel_format()>::val; ++i)
       {
         typename PixelType::comp_type valCompW = (typename PixelType::comp_type)rand();
         pixelForWriting[iPix].comp_i(i, valCompW);
@@ -128,12 +128,12 @@ void test_writingPixels()
   }
 }
 
-void export_FITS_file(const ImaGL::CImaGL& img, std::string strFileName);
+void export_FITS_file(const imaGL::CImaGL& img, std::string strFileName);
 
 template<typename pixel_type>
-void test_img_rescale(const ImaGL::CImaGL& img, std::string_view strFileName, size_t width, size_t height)
+void test_img_rescale(const imaGL::CImaGL& img, std::string_view strFileName, size_t width, size_t height)
 {
-  ImaGL::CImaGL img_scaled(img);
+  imaGL::CImaGL img_scaled(img);
   img_scaled.rescale(width, height);
 
   //This comment is useful if you want to store your results in a file

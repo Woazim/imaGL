@@ -1,3 +1,13 @@
+/*****************************************************************//**
+ * \file   imaGL.h
+ * \brief  Main file of imaGL. You must include this file to use imaGL
+ * 
+ * Every thing is declared in imaGL namespace.
+ * 
+ * \author Benjamin ALBOUY-KISSI
+ * \date   2020
+ * \copyright LGPL v3
+ *********************************************************************/
 #pragma once
 
 #include <vector>
@@ -35,8 +45,26 @@
   #define IMAGL_API IMPORT
 #endif
 
-namespace ImaGL {
+/**
+ * \namespace imaGL
+ * \brief All imaGL features are declared in this namespace.
+ */
+namespace imaGL {
 
+  /**
+   * \brief Macro to create function templates for function family map creation.
+   * 
+   * This macro creates two template functions called <em>name</em>_fnMap() and
+   * <em>name</em>_fnMap_rec. The first one returns a std::map which associates 
+   * pixel_type_id values to corresponding <em>name</em>\<Pixel\<CImaGL::EPixelFormat, CImaGL::EPixelType\>(...)
+   * functions. The second one is used for recursivity creation from the first one.
+   * For simplicity, none of these template should be used directly. Instead, use \ref create_fnMap
+   * to simply create the map for whole function family.
+   * 
+   * \param function_template_name This is the name of the function family
+   * 
+   * \see create_fnMap
+   */
 #define _create_fnMap(function_template_name) \
   template<size_t i, unsigned int... pixel_type_ids> \
   void function_template_name##_fnMap_rec(std::map<unsigned int, decltype(function_template_name<Pixel<CImaGL::EPixelFormat::Undefined, CImaGL::EPixelType::Undefined>>)*>& fnMap) \
@@ -56,6 +84,29 @@ namespace ImaGL {
     return fnMap; \
   }
 
+  /**
+   * \brief Macro that creates the function family map
+   * 
+   * This macro uses the previously declared thanks to \ref _create_fnMap template functions
+   * to create a family function map.
+   * You should use \ref _create_fnMap and \ref create_fnMap as in the following example.
+   * 
+   * The purpose of these two macros is to let you choose a templated function at runtime
+   * when pixel type is not known.
+   * 
+   * In a declaration section of your files, declare a template function followed by a 
+   * call to \ref _create_fnMap like this:
+   * 
+   * \snippet this template declaration of function family
+   * 
+   * Then, wherever you have to use this function family, just do like this:
+   * 
+   * \snippet imaGL.cpp use of a function family
+   * 
+   * \param function_template_name The name of the function family.
+   * 
+   * \see _create_fnMap
+   */
 #define create_fnMap(function_template_name) \
   function_template_name##_fnMap< \
     pixel_type_id<CImaGL::EPixelFormat::R, CImaGL::EPixelType::Byte>, \
@@ -132,41 +183,111 @@ namespace ImaGL {
     pixel_type_id<CImaGL::EPixelFormat::BGRA, CImaGL::EPixelType::UInt_2_10_10_10_Rev> \
   >();
 
+/** 
+ * \brief Opaque pointer to private members. This help to export/import CImaGL class on dynamic linking.
+ */
   struct SPrivateImaGLData;
 
+  /**
+   * \brief Describe image file format.
+   * 
+   * This class is used to express the image type when it cannot be determined from file name extension.
+   * Typically, it is used when you want to load image data from memory.
+   * 
+   * You should create a CFileFormat according to the following supported file formats:
+   * 
+   * Needed preprocessor defines | file types | typeSig as char[4] / std::string | typeSig as uint32_t (values depends on endianess of the architecture)
+   * --------------------------- | ---------- | -------------------------------- | ---------------------------------------------------------------------
+   * _HAS_PNG                    | png files  | "PNG "                           | *reinterpret_cast<const uint32_t*>("PNG ")
+   * 
+   * \see CImaGL::CImaGL(std::istream&, CFileFormat)
+   */
   class CFileFormat
   {
-    uint32_t m_sig;
+    uint32_t m_sig; //!< a 32-bit unsigned int that describes the format. The four bytes are the common file name extension.
   public:
+    /**
+     * \brief Construct a CFileFormat object from a common file name extension.
+     * 
+     * \param typeSig 4 characters that describe the file format
+     * 
+     * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible values.
+     */
     CFileFormat(const char typeSig[4]) {
       m_sig = *reinterpret_cast<const uint32_t*>(typeSig);
     }
+
+    /**
+     * \brief This constructor initialise the file format from a file magic number (uint32_t cast of typeSig).
+     * 
+     * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible values.
+     */
     CFileFormat(uint32_t typeSig) {
       m_sig = typeSig;
     }
+
+    /**
+     * \brief Convert this CFileFormat to a uint32_t typeSig
+     * 
+     * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible returned values.
+     */
     explicit operator uint32_t() {
       return m_sig;
     }
+
+    /**
+     * \brief Convert this CFileFormat to a const char[4].
+     * \note Exactly 4 chars must be accessed. It's not a null terminating string!
+     * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible returned arrays.
+     */
     explicit operator const char* (){
       return reinterpret_cast<const char*>(&m_sig);
     }
+
+    /**
+     * \brief Convert this CFileFormat to a std::string representation.
+     * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible returned strings.
+     */
     explicit operator ::std::string() {
       return ::std::string(static_cast<const char*>(*this), 4);
     }
+
 #ifdef __cpp_impl_three_way_comparison
+    /**
+     * \brief CFileFormat must follow the Compare requirement to be useable as key in maps
+     */
     std::strong_ordering operator<=>(const CFileFormat&) const = default;
 #else
+    ///@{
+    /** CFileFormat must follow the Compare requirement to be useable as key in maps */
     bool operator<(const CFileFormat& ff) const { return m_sig < ff.m_sig; }
     bool operator>(const CFileFormat& ff) const { return m_sig > ff.m_sig; }
     bool operator==(const CFileFormat& ff) const { return m_sig == ff.m_sig; }
+    ///@}
 #endif
   };
 
+  /**
+   * \defgroup exceptions Exception classes.
+   * @{
+   */
+
+  /**
+   * \brief Express a file that is not of the type it supposed to be.
+   * 
+   * For example, you tried to open a JPG file as a PNG one.
+   * The message may help you.
+   */
   class bad_format : public ::std::runtime_error {
   public:
     bad_format(const char* message) : ::std::runtime_error(message) {}
   };
 
+  /**
+   * \brief Express that no loader exists for a demanded file type.
+   * 
+   * The message may help you.
+   */
   class loader_not_found : public ::std::runtime_error {
   public:
     loader_not_found(CFileFormat ff) :
@@ -174,49 +295,57 @@ namespace ImaGL {
     {}
   };
 
+  /**
+   * \brief No compatible loader has been found for an unknown file type.
+   * 
+   * When you try to open a file (from HD or memory) and you don't know the type, imaGL will try to find a compatible loader. If it doesn't succeed, this exception is thrown.
+   * The message won't help you, but you can print it...
+   */
   class compatible_loader_not_found : public ::std::runtime_error {
   public:
     compatible_loader_not_found() :
       ::std::runtime_error("Compatible loader has not been found!")
     {}
   };
+  ///@}
+  
 
   class IMAGL_API CImaGL
   {
   public:
     enum class EPixelFormat : unsigned int
     {
-      Undefined = 0,
-      R     = 0x1903, //GL_RED
-      RG    = 0x8227, //GL_RG
-      RGB   = 0x1907, //GL_RGB
-      BGR   = 0x80E0, //GL_BGR
-      RGBA  = 0x1908, //GL_RGBA
-      BGRA  = 0x80E1  //GL_BGRA
+      Undefined = 0,  //!< In your opinion? \emoji :wink:
+      R     = 0x1903, //!< GL_RED
+      RG    = 0x8227, //!< GL_RG
+      RGB   = 0x1907, //!< GL_RGB
+      BGR   = 0x80E0, //!< GL_BGR
+      RGBA  = 0x1908, //!< GL_RGBA
+      BGRA  = 0x80E1  //!< GL_BGRA
     };
     enum class EPixelType : unsigned int
     {
-      Undefined           = 0,
-      UByte               = 0x1401, //GL_UNSIGNED_BYTE
-      Byte                = 0x1400, //GL_BYTE
-      UShort              = 0x1403, //GL_UNSIGNED_SHORT
-      Short               = 0x1402, //GL_SHORT
-      UInt                = 0x1405, //GL_UNSIGNED_INT
-      Int                 = 0x1404, //GL_INT
-      HFloat              = 0x140B, //GL_HALF_FLOAT
-      Float               = 0x1406, //GL_FLOAT
-      UByte_3_3_2         = 0x8032, //GL_UNSIGNED_BYTE_3_3_2
-      UByte_2_3_3_Rev     = 0x8362, //GL_UNSIGNED_BYTE_2_3_3_REV
-      UShort_5_6_5        = 0x8363, //GL_UNSIGNED_SHORT_5_6_5
-      UShort_5_6_5_Rev    = 0x8364, //GL_UNSIGNED_SHORT_5_6_5_REV
-      UShort_4_4_4_4      = 0x8033, //GL_UNSIGNED_SHORT_4_4_4_4
-      UShort_4_4_4_4_Rev  = 0x8365, //GL_UNSIGNED_SHORT_4_4_4_4_REV
-      UShort_5_5_5_1      = 0x8034, //GL_UNSIGNED_SHORT_5_5_5_1
-      UShort_1_5_5_5_Rev  = 0x8366, //GL_UNSIGNED_SHORT_1_5_5_5_REV
-      UInt_8_8_8_8        = 0x8035, //GL_UNSIGNED_INT_8_8_8_8
-      UInt_8_8_8_8_Rev    = 0x8367, //GL_UNSIGNED_INT_8_8_8_8_REV
-      UInt_10_10_10_2     = 0x8036, //GL_UNSIGNED_INT_10_10_10_2
-      UInt_2_10_10_10_Rev = 0x8368  //GL_UNSIGNED_INT_2_10_10_10_REV
+      Undefined           = 0,      //!< In your opinion? \emoji :wink:
+      UByte               = 0x1401, //!< GL_UNSIGNED_BYTE
+      Byte                = 0x1400, //!< GL_BYTE
+      UShort              = 0x1403, //!< GL_UNSIGNED_SHORT
+      Short               = 0x1402, //!< GL_SHORT
+      UInt                = 0x1405, //!< GL_UNSIGNED_INT
+      Int                 = 0x1404, //!< GL_INT
+      HFloat              = 0x140B, //!< GL_HALF_FLOAT
+      Float               = 0x1406, //!< GL_FLOAT
+      UByte_3_3_2         = 0x8032, //!< GL_UNSIGNED_BYTE_3_3_2
+      UByte_2_3_3_Rev     = 0x8362, //!< GL_UNSIGNED_BYTE_2_3_3_REV
+      UShort_5_6_5        = 0x8363, //!< GL_UNSIGNED_SHORT_5_6_5
+      UShort_5_6_5_Rev    = 0x8364, //!< GL_UNSIGNED_SHORT_5_6_5_REV
+      UShort_4_4_4_4      = 0x8033, //!< GL_UNSIGNED_SHORT_4_4_4_4
+      UShort_4_4_4_4_Rev  = 0x8365, //!< GL_UNSIGNED_SHORT_4_4_4_4_REV
+      UShort_5_5_5_1      = 0x8034, //!< GL_UNSIGNED_SHORT_5_5_5_1
+      UShort_1_5_5_5_Rev  = 0x8366, //!< GL_UNSIGNED_SHORT_1_5_5_5_REV
+      UInt_8_8_8_8        = 0x8035, //!< GL_UNSIGNED_INT_8_8_8_8
+      UInt_8_8_8_8_Rev    = 0x8367, //!< GL_UNSIGNED_INT_8_8_8_8_REV
+      UInt_10_10_10_2     = 0x8036, //!< GL_UNSIGNED_INT_10_10_10_2
+      UInt_2_10_10_10_Rev = 0x8368  //!< GL_UNSIGNED_INT_2_10_10_10_REV
     };
 
   private:
@@ -847,12 +976,14 @@ namespace ImaGL {
 
   };
 
+  //![template declaration of function family]
   template<typename PixelType>
   size_t t_nb_comp()
   {
     return NbComp<PixelType::pixel_format()>::val;
   }
   _create_fnMap(t_nb_comp);
+  //![template declaration of function family]
 
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
   std::ostream& operator<<(std::ostream& out, const Pixel<pf, pt>& pix)

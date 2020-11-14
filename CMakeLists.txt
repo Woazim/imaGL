@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.9)
 
 
-project ("ImaGL")
+project ("imaGL" VERSION 0.1 DESCRIPTION "A lightweight lib to load images in OpenGL applications")
 
 option(BUILD_TESTING "Build test program" OFF)
 option(STATIC_LIB "Build ImaGL as a static library" OFF)
@@ -61,9 +61,14 @@ conan_basic_setup(TARGETS)
 
 set(CMAKE_DEBUG_POSTFIX d)
 
+
+# Add subdirectories
+
 add_subdirectory ("imaGL")
 
 if(BUILD_TESTING)
 	enable_testing()
 	add_subdirectory ("test")
 endif()
+
+add_subdirectory("doc")
