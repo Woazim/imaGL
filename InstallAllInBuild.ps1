@@ -11,6 +11,7 @@ Get-ChildItem WSL* | ForEach-Object {
     wsl cmake ../.. $arg
     wsl cmake --build . --config $Config
     wsl cmake --install . --prefix ../install/$($_.BaseName)
+    wsl ctest -C $Config
     Pop-Location
 }
 Get-ChildItem x64* | ForEach-Object {
@@ -25,6 +26,7 @@ Get-ChildItem x64* | ForEach-Object {
     cmake ../.. $arg
     cmake --build . --config $Config
     cmake --install . --prefix ../install/$($_.BaseName)
+    ctest -C $Config
     Pop-Location
 }
 Pop-Location
