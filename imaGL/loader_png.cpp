@@ -22,7 +22,7 @@ namespace imaGL {
     SPrivateImaGLData ret;
 
     //First, test if this data is a png file
-    is.seekg(0, is.beg);
+    //is.seekg(0, is.beg);
     char sig[PNG_SIG_LENGTH];
     is.read(sig, PNG_SIG_LENGTH);
     if (png_sig_cmp(reinterpret_cast<png_const_bytep>(sig), 0, PNG_SIG_LENGTH))

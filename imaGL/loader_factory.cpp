@@ -5,8 +5,10 @@ namespace imaGL {
 
   CLoaderFactory::CLoaderFactory()
   {
+    using namespace string_literals;
+    m_mapLoaders["    "_FF] = &m_unknown;
 #ifdef _HAS_PNG
-    m_mapLoaders["PNG "] = &m_png;
+    m_mapLoaders["PNG "_FF] = &m_png;
     m_setLoaders.insert(&m_png);
 #endif
   }

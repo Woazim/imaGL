@@ -18,6 +18,7 @@ namespace imaGL {
   class CLoaderFactory
   {
     friend class CLoaderUnknown;
+    CLoaderUnknown m_unknown;
 #ifdef _HAS_PNG
     CLoaderPNG m_png;
 #endif // _HAS_PNG

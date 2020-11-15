@@ -65,11 +65,13 @@ add_test(NAME Reading_basn4a08.png COMMAND testProg [basn4a08] WORKING_DIRECTORY
 add_test(NAME Reading_basn4a16.png COMMAND testProg [basn4a16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_basn6a08.png COMMAND testProg [basn6a08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_basn6a16.png COMMAND testProg [basn6a16] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
-add_test(NAME Reading_test-16b.png COMMAND testProg [test-16b] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_z00n2c08.png COMMAND testProg [z00n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_z03n2c08.png COMMAND testProg [z03n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_z06n2c08.png COMMAND testProg [z06n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_z09n2c08.png COMMAND testProg [z09n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_test-16b.png COMMAND testProg [test-16b] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+
+add_test(NAME Reading_PNG_from_memory COMMAND testProg [opening-from-memory] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
 add_test(NAME Pixel_casts_for_reading COMMAND testProg [pixelcast-reading] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Pixel_casts_for_writing COMMAND testProg [pixelcast-writing] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)

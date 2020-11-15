@@ -213,7 +213,7 @@ namespace imaGL {
      * 
      * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible values.
      */
-    CFileFormat(const char typeSig[4]) {
+    explicit CFileFormat(const char typeSig[4]) {
       m_sig = *reinterpret_cast<const uint32_t*>(typeSig);
     }
 
@@ -222,7 +222,7 @@ namespace imaGL {
      * 
      * \see <a class="el" href="#details">CFileFormat detailed description</a> for a list of possible values.
      */
-    CFileFormat(uint32_t typeSig) {
+    explicit CFileFormat(uint32_t typeSig) {
       m_sig = typeSig;
     }
 
@@ -266,6 +266,16 @@ namespace imaGL {
     ///@}
 #endif
   };
+
+  namespace string_literals {
+    inline CFileFormat operator "" _FF(const char* str, size_t length)
+    {
+      if (length != 4) {
+        throw std::logic_error("You must use a string of 4 characters as CFileFormat signature");
+      }
+      return CFileFormat(str);
+    }
+  }
 
   /**
    * \defgroup exceptions Exception classes.
@@ -355,7 +365,7 @@ namespace imaGL {
 
   public:
     CImaGL(std::string_view filename);
-    CImaGL(std::istream& is, CFileFormat format);
+    CImaGL(std::istream& is, CFileFormat format = CFileFormat("    "));
     CImaGL(const CImaGL& img);
     CImaGL(CImaGL&& img) noexcept;
     ~CImaGL();

@@ -180,6 +180,32 @@ TEST_CASE("Opening a 16 bits Color + 16 bits Alpha non squared PNG file ", "[tes
   test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imaGL::CImaGL("test-16b.png"), "test-16b.png");
 }
 
+TEST_CASE("Opening a PNG file from memory", "[opening-from-memory]")
+{
+  using namespace imaGL::string_literals;
+
+  std::ifstream ifs("test-16b.png", std::ios::in | std::ios::binary);
+  REQUIRE(ifs.is_open());
+
+  //Read all content of the file
+  ifs.seekg(0, std::ios::end);
+  size_t length = ifs.tellg();
+  ifs.seekg(0, std::ios::beg);
+  std::string buffer(length, '\0');
+  ifs.read(buffer.data(), length);
+
+  //Encapsulate raw buffer in a stream buffer
+  std::istringstream iss(std::move(buffer), std::ios::in | std::ios::binary);
+
+  //Try to open from a PNG
+  imaGL::CImaGL imgPNG(iss, "PNG "_FF);
+  test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgPNG, "test-16b.png");
+
+  //Try to open from an unknown type
+  iss.seekg(0, std::ios::beg);
+  imaGL::CImaGL imgUnknown(iss);
+  test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgUnknown, "test-16b.png");
+}
 
 
 //Pixel casts 
