@@ -1,7 +1,7 @@
 // imaGL.cpp : Définit les fonctions de la bibliothèque statique.
 //
 
-#include "public/imaGL.h"
+#include "public/imaGL/imaGL.h"
 #include "privateimagldata.h"
 #include "loader_factory.h"
 #include <algorithm>
@@ -32,7 +32,7 @@ namespace imaGL {
     strExt += std::string(4 - strExt.length(), ' ');
     *m_pData = CLoaderFactory::getLoader(CFileFormat(strExt.c_str())).load(is);
     
-    computePixelSize();
+    m_pData->m_nPixelSize = imaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
   }
 
   CImaGL::CImaGL(std::istream& is, CFileFormat formatSig)
@@ -43,7 +43,7 @@ namespace imaGL {
 
     *m_pData = CLoaderFactory::getLoader(formatSig).load(is);
 
-    computePixelSize();
+    m_pData->m_nPixelSize = imaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
   }
 
   CImaGL::CImaGL(const CImaGL& img)
@@ -75,13 +75,17 @@ namespace imaGL {
     return *this;
   }
 
-  void CImaGL::computePixelSize()
+  CImaGL& CImaGL::operator=(CImaGL&& img) noexcept
   {
-    if(m_pData)
-      m_pData->m_nPixelSize = imaGL::computePixelSize(m_pData->m_PixelFormat, m_pData->m_PixelType);
+    if (this == &img)
+      return *this;
+    delete m_pData;
+    m_pData = img.m_pData;
+    img.m_pData = nullptr;
+    return *this;
   }
 
-  const std::byte* CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
+  const std::byte*     CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
   size_t               CImaGL::width()       const { return m_pData ? m_pData->m_nWidth : 0; }
   size_t               CImaGL::height()      const { return m_pData ? m_pData->m_nHeight : 0; }
   CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData ? m_pData->m_PixelFormat : EPixelFormat::Undefined; }

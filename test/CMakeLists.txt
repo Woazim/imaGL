@@ -73,6 +73,8 @@ add_test(NAME Reading_test-16b.png COMMAND testProg [test-16b] WORKING_DIRECTORY
 
 add_test(NAME Reading_PNG_from_memory COMMAND testProg [opening-from-memory] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
+add_test(NAME Moving_objects COMMAND testProg [move-constructor] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+
 add_test(NAME Pixel_casts_for_reading COMMAND testProg [pixelcast-reading] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Pixel_casts_for_writing COMMAND testProg [pixelcast-writing] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 

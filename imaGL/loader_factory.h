@@ -1,5 +1,5 @@
 #pragma once
-#include "public/imaGL.h"
+#include "public/imaGL/imaGL.h"
 #include "loader.h"
 #include "loader_png.h"
 #include <map>

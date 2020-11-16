@@ -207,6 +207,30 @@ TEST_CASE("Opening a PNG file from memory", "[opening-from-memory]")
   test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgUnknown, "test-16b.png");
 }
 
+TEST_CASE("Moving a CImaGL to another", "[move-constructor]")
+{
+  imaGL::CImaGL imgMoveFrom("test-16b.png");
+  imaGL::CImaGL imgMoveTo(std::move(imgMoveFrom));
+
+  test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgMoveTo, "test-16b.png");
+  CHECK(imgMoveFrom.pixelformat() == imaGL::CImaGL::EPixelFormat::Undefined);
+  CHECK(imgMoveFrom.pixeltype() == imaGL::CImaGL::EPixelType::Undefined);
+  CHECK(imgMoveFrom.pixelsize() == 0);
+  CHECK(imgMoveFrom.pixels() == nullptr);
+  CHECK(imgMoveFrom.nb_comp() == 0);
+  CHECK(imgMoveFrom.width() == 0);
+  CHECK(imgMoveFrom.height() == 0);
+
+  imgMoveFrom = std::move(imgMoveTo);
+  test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgMoveFrom, "test-16b.png");
+  CHECK(imgMoveTo.pixelformat() == imaGL::CImaGL::EPixelFormat::Undefined);
+  CHECK(imgMoveTo.pixeltype() == imaGL::CImaGL::EPixelType::Undefined);
+  CHECK(imgMoveTo.pixelsize() == 0);
+  CHECK(imgMoveTo.pixels() == nullptr);
+  CHECK(imgMoveTo.nb_comp() == 0);
+  CHECK(imgMoveTo.width() == 0);
+  CHECK(imgMoveTo.height() == 0);
+}
 
 //Pixel casts 
 TEST_CASE("Pixel casts for reading", "[pixelcast-reading]")

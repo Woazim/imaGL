@@ -24,7 +24,7 @@ imaGL::CImaGL img1("image.png");
 imaGL::CImaGL img2(stream, "PNG ");
 ```
 
-_Note that the `"PNG "` argument is cast to a `CFileFormat` object that guessed the data format of the memory_
+_Note that the `"PNG "` argument is cast to a `imaGL::CFileFormat` object that guessed the data format of the memory_
 
 `CImaGL` class has some accessors to read data:
 
@@ -32,9 +32,9 @@ _Note that the `"PNG "` argument is cast to a `CFileFormat` object that guessed 
 imaGL::CImaGL img("image.png");
 size_t w = img.width(); // This is... the pixel width of img
 size_t h = img.height(); // This is... the pixel height of img
-CImaGL::EPixelFormat pf = img.pixelformat(); //This enum is directly compatible with `format` parameter of glTexImage2D.
+imaGL::CImaGL::EPixelFormat pf = img.pixelformat(); //This enum is directly compatible with `format` parameter of glTexImage2D.
 // You just have to static_cast<GLenum> it.
-CImaGL::EPixelType pt = img.pixeltype(); //This enum is directly compatible with `type` parameter of glTexImage2D.
+imaGL::CImaGL::EPixelType pt = img.pixeltype(); //This enum is directly compatible with `type` parameter of glTexImage2D.
 // You just have to static_cast<GLenum> it.
 size_t ps = img.pixelsize(); //This is a convenient function which returns the size of a pixel in bytes.
 // For example, the pixesize is 8 for an RGBA / UShort image.

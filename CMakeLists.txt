@@ -61,7 +61,7 @@ endif()
 conan_basic_setup(TARGETS)
 
 set(CMAKE_DEBUG_POSTFIX d)
-
+set(CMAKE_STATIC_LIBRARY_SUFFIX "s${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
 # Add subdirectories
 

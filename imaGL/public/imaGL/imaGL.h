@@ -196,10 +196,22 @@ namespace imaGL {
    * 
    * You should create a CFileFormat according to the following supported file formats:
    * 
-   * Needed preprocessor defines | file types | typeSig as char[4] / std::string | typeSig as uint32_t (values depends on endianess of the architecture)
-   * --------------------------- | ---------- | -------------------------------- | ---------------------------------------------------------------------
-   * _HAS_PNG                    | png files  | "PNG "                           | *reinterpret_cast<const uint32_t*>("PNG ")
+   * Needed preprocessor defines | file types | typeSig as char[4] / std::string          | typeSig as uint32_t (values depends on endianess of the architecture)
+   * --------------------------- | ---------- | ----------------------------------------- | ---------------------------------------------------------------------
+   * <em>none</em>               | all        | <tt>\"&nbsp;&nbsp;&nbsp;&nbsp;\"</tt>     | <tt>*reinterpret_cast<const uint32_t*>(\"&nbsp;&nbsp;&nbsp;&nbsp;\")</tt>
+   * _HAS_PNG                    | png files  | <tt>"PNG "</tt>                           | <tt>*reinterpret_cast<const uint32_t*>("PNG ")</tt>
+   *
+   * \note A string literal suffix <tt>_FF</tt> is declared in imaGL::string_literals namespace to help you
+   * create CFileFormat from a string. To use it, refers to the following example.
+   *
+   * \code{.cpp}
+   * using namespace imaGL::string_literals;
+   * imaGL::CFileFormat ff = "PNG "_FF;
+   * \endcode
    * 
+   * \note Special typeSig <tt>\"&nbsp;&nbsp;&nbsp;&nbsp;\"</tt> means that you don't know the file type.
+   * In such a case, imaGL::CImaGL loader will try to guess file type from its data.
+   *
    * \see CImaGL::CImaGL(std::istream&, CFileFormat)
    */
   class CFileFormat
@@ -267,8 +279,20 @@ namespace imaGL {
 #endif
   };
 
+  /**
+   * \brief Contains imaGL defined string literal operators.
+   */
   namespace string_literals {
-    inline CFileFormat operator "" _FF(const char* str, size_t length)
+
+    /**
+     * \brief Create a CFileFormat from a string representation.
+     * 
+     * \param str String representation of the CFileFormat (ex: "PNG ")
+     * \param length String length (must be 4)
+     * 
+     * \return A CFileFormat object corresonding to string representation
+     */
+    inline CFileFormat operator""_FF(const char* str, size_t length)
     {
       if (length != 4) {
         throw std::logic_error("You must use a string of 4 characters as CFileFormat signature");
@@ -319,10 +343,22 @@ namespace imaGL {
   };
   ///@}
   
-
+  /**
+   * \brief Main imaGL class. This is the class to use to load images.
+   * 
+   * \see \ref mainpage "Readme.md" for usage examples.
+   */
   class IMAGL_API CImaGL
   {
   public:
+    /**
+     * \brief Pixel format enumeration
+     * 
+     * These values express pixel component format. By casting them to GLenum, they are
+     * directly usable as <em>format</em> parameter of OpenGL's glTexImage* functions.
+     * 
+     * The following table list matches between this enum and OpenGL GLenum
+     */
     enum class EPixelFormat : unsigned int
     {
       Undefined = 0,  //!< In your opinion? \emoji :wink:
@@ -333,6 +369,14 @@ namespace imaGL {
       RGBA  = 0x1908, //!< GL_RGBA
       BGRA  = 0x80E1  //!< GL_BGRA
     };
+    /**
+     * \brief Pixel type enumeration
+     *
+     * These values express pixel component data type. By casting them to GLenum, they are
+     * directly usable as <em>type</em> parameter of OpenGL's glTexImage* functions.
+     * 
+     * The following table list matches between this enum and OpenGL GLenum
+     */
     enum class EPixelType : unsigned int
     {
       Undefined           = 0,      //!< In your opinion? \emoji :wink:
@@ -359,32 +403,129 @@ namespace imaGL {
     };
 
   private:
-    SPrivateImaGLData* m_pData;
-
-    void computePixelSize();
+    SPrivateImaGLData* m_pData; //!< Opaque pointer to private data
 
   public:
+    /// \name Construction/Destruction
+    /// @{
+    /**
+     * \brief Construct an imaGL::CImaGL by loading data from a file.
+     * 
+     * The object is created with pixel format and type choosen closest to file format by never loosing information.
+     * 
+     * \param filename File name in the file system.
+     */
     CImaGL(std::string_view filename);
+    /**
+     * \brief Construct an imaGL::CImaGL by loading data from memory.
+     *
+     * The object is created with pixel format and type choosen closest to memory format by never loosing information.
+     *
+     * \param is An input stream object from which reading data.
+     * \param format A CFileFormat to describe data format in \p is.
+     * 
+     * \note If \p format is not present, the special value <tt>\"&nbsp;&nbsp;&nbsp;&nbsp;\"_FF</tt> is used. It means that the format will be guessed from data.
+     * 
+     * \see imaGL::CFileFormat, operator""_FF in imaGL::string_literals
+     */
     CImaGL(std::istream& is, CFileFormat format = CFileFormat("    "));
+
+    /**
+     * \brief Copy constructor.
+     */
     CImaGL(const CImaGL& img);
+
+    /**
+     * \brief Move constructor.
+     */
     CImaGL(CImaGL&& img) noexcept;
+
+    /**
+     * \brief Destructor.
+     */
     ~CImaGL();
 
+    /**
+     * \brief Assignment operator.
+     */
     CImaGL& operator=(const CImaGL& img);
 
-    const std::byte*  pixels()      const;
+    /**
+     * \brief Move assignment operator.
+     */
+    CImaGL& operator=(CImaGL&& img) noexcept;
+    ///@}
+
+    ///\name Accessing information
+    ///@{
+
+    ///\brief Get pixel data in memory.
+    ///\note Directly compatible with \p data parameter of OpenGL's glTexImage*
+    const std::byte*      pixels()      const;
+    ///\brief Get image width in pixels.
+    ///\note Directly compatible with \p width parameter of OpenGL's glTexImage*
     size_t                width()       const;
+    ///\brief Get image height in pixels.
+    ///\note Directly compatible with \p height parameter of OpenGL's glTexImage*
     size_t                height()      const;
+    ///\brief Get pixel format.
+    ///\note Compatible with \p format parameter of OpenGL's glTexImage* after casting it to GLenum type
     EPixelFormat          pixelformat() const;
+    ///\brief Get pixel type.
+    ///\note Compatible with \p type parameter of OpenGL's glTexImage* after casting it to GLenum type
     EPixelType            pixeltype()   const;
+    ///\brief Get pixel size in bytes.
+    ///\note This can vary from 1 (ex: RGB / UByte_3_3_2) to 16 (ex: RGBA / UInt)
     size_t                pixelsize()   const;
+    ///\brief Get the number of pixel components.
+    ///\note =1 for R, =2 for RG, =3 for RGB / BGR, =4 for RGBA / BGRA
     size_t                nb_comp()     const;
 
+    /**
+     * \brief Direct access to a pixel component as a long long value.
+     * 
+     * \note You should ensure that pixel type is an integral type
+     * 
+     * \param row Row index of queried pixel in range [0, height())
+     * \param col Colon index of queried pixel in range [0, width())
+     * \param component Component index of queried pixel in range [0, nb_comp())
+     */
     long long long_component_at(size_t row, size_t col, size_t component) const;
+    /**
+     * \brief Direct access to a pixel component as a float value.
+     *
+     * \note You should ensure that pixel type is a floating type
+     *
+     * \param row Row index of queried pixel in range [0, height())
+     * \param col Colon index of queried pixel in range [0, width())
+     * \param component Component index of queried pixel in range [0, nb_comp())
+     */
     float     float_component_at(size_t row, size_t col, size_t component) const;
+    ///@}
 
+    ///\name Image manipulation
+    ///@{
+    /**
+     * \brief Rescale the image.
+     * 
+     * Downscaling is done by running a mipmap reduction to get the nearest upper scale, 
+     * then bilinear interpolation is used to compute sample pixel value.
+     * 
+     * Upscaling is directly done by bilinear interpolation
+     * 
+     * \param width New image width
+     * \param height New image height
+     */
     void rescale(size_t width, size_t height);
+
+    /**
+     * \brief Rescale the image to the nearest power of 2 size.
+     *
+     * The new size is computed as the next power of 2 of current size (width and height)
+     * If the size is already a power of 2, nothing is done.
+     */
     void rescaleToNextPowerOfTwo();
+    ///@}
   };
 
   constexpr size_t computePixelSize(CImaGL::EPixelFormat pf, CImaGL::EPixelType pt)
