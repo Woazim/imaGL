@@ -118,7 +118,9 @@ You can use cmake-gui or ccmake to configure your build. Possible options are:
 
 - BUILD_DOCUMENTATION
   - Allows to build doxygen documentation
-  - Dependencies doxygen. You must install doxygen first by your own.
+  - Dependencies
+    - doxygen. You must install doxygen first by your own.
+    - dot tool from graphviz. I asked cmake to not to force it, but it doesn't want...
   - Default OFF
 - BUILD_TESTING
   - Allows to build unit tests
