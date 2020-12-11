@@ -51,6 +51,8 @@
  */
 namespace imaGL {
 
+  ///\defgroup fn_family Function family creation
+  /// @{
   /**
    * \brief Macro to create function templates for function family map creation.
    * 
@@ -182,12 +184,15 @@ namespace imaGL {
     pixel_type_id<CImaGL::EPixelFormat::RGBA, CImaGL::EPixelType::UInt_2_10_10_10_Rev>, \
     pixel_type_id<CImaGL::EPixelFormat::BGRA, CImaGL::EPixelType::UInt_2_10_10_10_Rev> \
   >();
-
+  ///@}
+  
 /** 
  * \brief Opaque pointer to private members. This help to export/import CImaGL class on dynamic linking.
  */
   struct SPrivateImaGLData;
 
+  ///\defgroup file_manipulation File formats manipulation
+  /// @{
   /**
    * \brief Describe image file format.
    * 
@@ -278,7 +283,7 @@ namespace imaGL {
     ///@}
 #endif
   };
-
+  
   /**
    * \brief Contains imaGL defined string literal operators.
    */
@@ -300,11 +305,10 @@ namespace imaGL {
       return CFileFormat(str);
     }
   }
+  ///@}
 
-  /**
-   * \defgroup exceptions Exception classes.
-   * @{
-   */
+  ///\defgroup exceptions Exception classes
+  ///@{
 
   /**
    * \brief Express a file that is not of the type it supposed to be.
@@ -343,6 +347,8 @@ namespace imaGL {
   };
   ///@}
   
+  ///\defgroup image Image manipulation
+  /// @{
   /**
    * \brief Main imaGL class. This is the class to use to load images.
    * 
@@ -388,18 +394,18 @@ namespace imaGL {
       Int                 = 0x1404, //!< GL_INT
       HFloat              = 0x140B, //!< GL_HALF_FLOAT
       Float               = 0x1406, //!< GL_FLOAT
-      UByte_3_3_2         = 0x8032, //!< GL_UNSIGNED_BYTE_3_3_2
-      UByte_2_3_3_Rev     = 0x8362, //!< GL_UNSIGNED_BYTE_2_3_3_REV
-      UShort_5_6_5        = 0x8363, //!< GL_UNSIGNED_SHORT_5_6_5
-      UShort_5_6_5_Rev    = 0x8364, //!< GL_UNSIGNED_SHORT_5_6_5_REV
-      UShort_4_4_4_4      = 0x8033, //!< GL_UNSIGNED_SHORT_4_4_4_4
-      UShort_4_4_4_4_Rev  = 0x8365, //!< GL_UNSIGNED_SHORT_4_4_4_4_REV
-      UShort_5_5_5_1      = 0x8034, //!< GL_UNSIGNED_SHORT_5_5_5_1
-      UShort_1_5_5_5_Rev  = 0x8366, //!< GL_UNSIGNED_SHORT_1_5_5_5_REV
-      UInt_8_8_8_8        = 0x8035, //!< GL_UNSIGNED_INT_8_8_8_8
-      UInt_8_8_8_8_Rev    = 0x8367, //!< GL_UNSIGNED_INT_8_8_8_8_REV
-      UInt_10_10_10_2     = 0x8036, //!< GL_UNSIGNED_INT_10_10_10_2
-      UInt_2_10_10_10_Rev = 0x8368  //!< GL_UNSIGNED_INT_2_10_10_10_REV
+      UByte_3_3_2         = 0x8032, //!< Packed pixel GL_UNSIGNED_BYTE_3_3_2
+      UByte_2_3_3_Rev     = 0x8362, //!< Packed pixel GL_UNSIGNED_BYTE_2_3_3_REV
+      UShort_5_6_5        = 0x8363, //!< Packed pixel GL_UNSIGNED_SHORT_5_6_5
+      UShort_5_6_5_Rev    = 0x8364, //!< Packed pixel GL_UNSIGNED_SHORT_5_6_5_REV
+      UShort_4_4_4_4      = 0x8033, //!< Packed pixel GL_UNSIGNED_SHORT_4_4_4_4
+      UShort_4_4_4_4_Rev  = 0x8365, //!< Packed pixel GL_UNSIGNED_SHORT_4_4_4_4_REV
+      UShort_5_5_5_1      = 0x8034, //!< Packed pixel GL_UNSIGNED_SHORT_5_5_5_1
+      UShort_1_5_5_5_Rev  = 0x8366, //!< Packed pixel GL_UNSIGNED_SHORT_1_5_5_5_REV
+      UInt_8_8_8_8        = 0x8035, //!< Packed pixel GL_UNSIGNED_INT_8_8_8_8
+      UInt_8_8_8_8_Rev    = 0x8367, //!< Packed pixel GL_UNSIGNED_INT_8_8_8_8_REV
+      UInt_10_10_10_2     = 0x8036, //!< Packed pixel GL_UNSIGNED_INT_10_10_10_2
+      UInt_2_10_10_10_Rev = 0x8368  //!< Packed pixel GL_UNSIGNED_INT_2_10_10_10_REV
     };
 
   private:
@@ -527,7 +533,18 @@ namespace imaGL {
     void rescaleToNextPowerOfTwo();
     ///@}
   };
+  ///@}
 
+  ///\defgroup pixels Pixel manipulation
+  /// @{
+  /**
+   * \brief Compute the size in bytes of one pixel.
+   * 
+   * \param pf the pixel format
+   * \param pt the pixel type
+   * 
+   * \note This function is declared \c constexpr, so calling it has no cost.
+   */
   constexpr size_t computePixelSize(CImaGL::EPixelFormat pf, CImaGL::EPixelType pt)
   {
     int nNbComp = 0;
@@ -588,6 +605,14 @@ namespace imaGL {
     return 0;
   }
 
+  /**
+   * \brief Helper operator for printing CImaGL::EPixelFormat values to ostream.
+   * 
+   * A human readable string representation is outputed to ostream.
+   * 
+   * \param os output stream where to print value
+   * \param pf the pixel format enumeration value to output
+   */
   inline std::ostream& operator<<(std::ostream& os, const CImaGL::EPixelFormat& pf)
   {
     switch (pf)
@@ -611,6 +636,14 @@ namespace imaGL {
     }
   }
 
+  /**
+   * \brief Helper operator for printing CImaGL::EPixelType values to ostream.
+   *
+   * A human readable string representation is outputed to ostream.
+   *
+   * \param os output stream where to print value
+   * \param pf the pixel type enumeration value to output
+   */
   inline std::ostream& operator<<(std::ostream& os, const CImaGL::EPixelType& pf)
   {
     switch (pf)
@@ -661,90 +694,190 @@ namespace imaGL {
       return os << "Unknown!";
     }
   }
-
+  ///@}
+  
+  ///\defgroup packed_pixels Packed pixels manipulation
+  ///\ingroup pixels
+  /// @{
+  /**
+   * \brief Template that gives information on a specific packed pixel Type.
+   * 
+   * This template is used to programmaticaly explain the structure of a packed pixel type.
+   * Packed pixel types are enumaration values of CImaGL::EPixelType that store component 
+   * values in sub bytes such as CImaGL::EPixelType::UByte_3_3_2.
+   * 
+   * \tparam pt The pixel type from which information are needed
+   * 
+   * \note If \c pt is not a packed pixel type, no relevant information are computed.
+   * Pack::pixel_type and Pack::comp_type are \c void* and Pack::nbComp is 0.
+   */
   template<CImaGL::EPixelType pt>
   struct Pack {
-    using pixel_type = void*;
-    using comp_type = void*;
-    static const int nbComp = 0;
+    using pixel_type = void*;     //!< \brief the shortest data type needed to store one pixel.
+    using comp_type = void*;      //!< \brief the shortest data type needed to store one pixel component.
+    static const int nbComp = 0;  //!< \brief the number of components of this kind of pixel.
   };
+  ///@}
 
+  ///\defgroup packed_pixels_spec Specialisations
+  ///\ingroup packed_pixels
+  ///@{
+  
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UByte_3_3_2
   template<> struct Pack< CImaGL::EPixelType::UByte_3_3_2> {
     using pixel_type = uint8_t;
     using comp_type = uint8_t;
     static const int nbComp = 3;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UByte_2_3_3_Rev
   template<> struct Pack< CImaGL::EPixelType::UByte_2_3_3_Rev> {
     using pixel_type = uint8_t;
     using comp_type = uint8_t;
     static const int nbComp = 3;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UShort_5_5_5_1
   template<> struct Pack< CImaGL::EPixelType::UShort_5_5_5_1> {
     using pixel_type = unsigned short;
     using comp_type = uint8_t;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UShort_1_5_5_5_Rev
   template<> struct Pack< CImaGL::EPixelType::UShort_1_5_5_5_Rev> {
     using pixel_type = unsigned short;
     using comp_type = uint8_t;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UShort_4_4_4_4
   template<> struct Pack< CImaGL::EPixelType::UShort_4_4_4_4> {
     using pixel_type = unsigned short;
     using comp_type = uint8_t;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UShort_4_4_4_4_Rev
   template<> struct Pack< CImaGL::EPixelType::UShort_4_4_4_4_Rev> {
     using pixel_type = unsigned short;
     using comp_type = uint8_t;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UShort_5_6_5
   template<> struct Pack< CImaGL::EPixelType::UShort_5_6_5> {
     using pixel_type = unsigned short;
     using comp_type = uint8_t;
     static const int nbComp = 3;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UShort_5_6_5_Rev
   template<> struct Pack< CImaGL::EPixelType::UShort_5_6_5_Rev> {
     using pixel_type = unsigned short;
     using comp_type = uint8_t;
     static const int nbComp = 3;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UInt_10_10_10_2
   template<> struct Pack< CImaGL::EPixelType::UInt_10_10_10_2> {
     using pixel_type = unsigned int;
     using comp_type = unsigned short;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UInt_2_10_10_10_Rev
   template<> struct Pack< CImaGL::EPixelType::UInt_2_10_10_10_Rev> {
     using pixel_type = unsigned int;
     using comp_type = unsigned short;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UInt_8_8_8_8
   template<> struct Pack< CImaGL::EPixelType::UInt_8_8_8_8> {
     using pixel_type = unsigned int;
     using comp_type = uint8_t;
     static const int nbComp = 4;
   };
+  //!\brief Specialisation of Pack for \c pt = CImaGL::EPixelType::UInt_8_8_8_8_Rev
   template<> struct Pack< CImaGL::EPixelType::UInt_8_8_8_8_Rev> {
     using pixel_type = unsigned int;
     using comp_type = uint8_t;
     static const int nbComp = 4;
   };
+  ///@}
 
+  /**
+   * \brief Packed pixel manipulation class
+   * \ingroup packed_pixels
+   * 
+   * This class let you access to packed pixel components. 
+   * It's purpose is to be specialised for each packed pixel format.
+   * 
+   * This class contains exactly and only the packed pixel. So you can \c reinterpret_cast
+   * raw packed pixel pointers to a pointer of this class and vice versa. For example, if you 
+   * have a pointer to raw OpenGL UByte_3_3_2 pixels, each pixel is then stored to an uint8_t.
+   * You can safely cast this raw pointer to a PackedPixel<CImaGL::EPixelType::UByte_3_3_2> pointer.
+   * 
+   * \tparam pt Must be a packed pixel type from CImaGL::EPixelType enumeration
+   */
   template<CImaGL::EPixelType pt>
   class PackedPixel
   {
   public:
-    using type = typename Pack<pt>::pixel_type;
-    using comp_type = typename Pack<pt>::comp_type;
-    static const int nb_comp = Pack<pt>::nbComp;
-    inline static const uint32_t* componentMasks();
+    using type = typename Pack<pt>::pixel_type;     ///< \brief The shortest data type needed to store one pixel.
+    using comp_type = typename Pack<pt>::comp_type; ///< \brief The shortest data type needed to store one pixel component.
+    static const int nb_comp = Pack<pt>::nbComp;    ///< \brief The number of components of this kind of pixel.
+    /**
+     * \brief Get component bit masks
+     * 
+     * This function returns a static array that contains bit mask for each pixel component. Suppose you
+     * use this template with \c pt = \c CImaGL::EPixelType::UByte_3_3_2. In such a case, this function returns
+     * 3 bit mask that correspond to the first 3 bits, next three bits and 2 last bits, ie. { 0b11100000, 0b00011100, 0b00000011 }
+     * 
+     * Used in conjunction with componentShifts(), the component values can be computed.
+     * 
+     * \return A pointer to a static array that contains the bit mask for each pixel component
+     * 
+     * \note You should not have to use this function, since components are accessible through comp() and comp_i(). So this function is private.
+     * 
+     * \see PackedPixel::componentShifts()
+     */
+    inline static const uint32_t* componentMasks(); 
+    /**
+     * \brief Get component bit shifts
+     *
+     * This function returns a static array that contains bit right shifts for each pixel component. Suppose you
+     * use this template with \c pt = \c CImaGL::EPixelType::UByte_3_3_2. In such a case, this function returns
+     * { 5, 2, 0 } since bits must be 5 times right shifted to get first 3 bits on the right to get the numerical 
+     * value of the first component. In the same way, bits must be 2 times right shifted to get the second component 
+     * stucked on the right of the binary number. Finally no shifts should be done to get the third component.
+     * 
+     * Used in conjunction with componentMasks(), the component values can be computed.
+     *
+     * \return A pointer to a static array that contains the bit mask for each pixel component
+     *
+     * \note You should not have to use this function, since components are accessible through comp() and comp_i(). So this function is private.
+     * 
+     * \see PackedPixel::componentMasks()
+     */
     inline static const int* componentShifts();
+
   private:
-    type pixel;
+    type pixel;///<\brief this is the only data in this class: the pixel
   public:
-    //Accessor to components for reading pixel
+    
+    /**
+     * \brief Static getter to one component
+     * 
+     * \tparam n Component indice. 
+     * 
+     * \return The component value.
+     * 
+     * \note If \p n cannot be known at compile time, you can use comp_i(size_t i)
+     */
     template<size_t n>
     comp_type comp() const { static_assert(n < nb_comp, "The component indice is not valid!"); return (pixel & componentMasks()[n]) >> componentShifts()[n]; }
+    
+    /**
+     * \brief Dynamic getter to one component
+     *
+     * \param i Component indice.
+     *
+     * \return The component value.
+     * 
+     * \note If \p i is known at compile time, you should use comp<n>()
+     */
     comp_type comp_i(size_t i) const {
       switch (i) {
       case 0:  return comp<0>();
@@ -754,9 +887,27 @@ namespace imaGL {
       default: return comp<4>();
       }
     }
-    //Accessor to component for writing to pixel
+    
+    /**
+     * \brief Static setter to one component
+     *
+     * \tparam n Component indice.
+     *
+     * \param val The component value.
+     *
+     * \note If \p n cannot be known at compile time, you can use comp_i(size_t i, comp_type val)
+     */
     template<size_t n>
     void comp(comp_type val) { static_assert(n < nb_comp, "The component indice is not valid!"); pixel |= componentMasks()[n]; pixel &= ((val << componentShifts()[n]) & componentMasks()[n]); }
+    
+    /**
+     * \brief Dynamic setter to one component
+     *
+     * \param i Component indice.
+     * \param val The component value.
+     *
+     * \note If \p i is known at compile time, you should use comp<n>(comp_type val)
+     */
     void comp_i(size_t i, comp_type val) {
       switch (i) {
       case 0:  comp<0>(val); break;
@@ -768,56 +919,99 @@ namespace imaGL {
     }
   };
 
+  ///\ingroup packed_pixels_spec
+  ///@{
+
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UByte_3_3_2>
   using PixelUByte_3_3_2 = PackedPixel<CImaGL::EPixelType::UByte_3_3_2>;
-  template<> inline const uint32_t* PixelUByte_3_3_2::componentMasks() { static uint32_t data[] = { (uint8_t)-1, 0b00011100, 0b00000011 }; return data; }
+  template<> inline const uint32_t* PixelUByte_3_3_2::componentMasks() { static uint32_t data[] = { 0b11100000, 0b00011100, 0b00000011 }; return data; }
   template<> inline const int* PixelUByte_3_3_2::componentShifts() { static int data[] = { 5, 2, 0 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UByte_2_3_3_Rev>
   using PixelUByte_2_3_3_Rev = PackedPixel<CImaGL::EPixelType::UByte_2_3_3_Rev>;
-  template<> inline const uint32_t* PixelUByte_2_3_3_Rev::componentMasks() { static uint32_t data[] = { 0b00000111, 0b00111000, (uint8_t)-1 }; return data; }
+  template<> inline const uint32_t* PixelUByte_2_3_3_Rev::componentMasks() { static uint32_t data[] = { 0b00000111, 0b00111000, 0b11000000 }; return data; }
   template<> inline const int* PixelUByte_2_3_3_Rev::componentShifts() { static int data[] = { 0, 3, 6 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UShort_5_6_5>
   using PixelUShort_5_6_5 = PackedPixel<CImaGL::EPixelType::UShort_5_6_5>;
-  template<> inline const uint32_t* PixelUShort_5_6_5::componentMasks() { static uint32_t data[] = { (uint16_t)-1, 0b0000011111100000, 0b0000000000011111 }; return data; }
+  template<> inline const uint32_t* PixelUShort_5_6_5::componentMasks() { static uint32_t data[] = { 0b1111100000000000, 0b0000011111100000, 0b0000000000011111 }; return data; }
   template<> inline const int* PixelUShort_5_6_5::componentShifts() { static int data[] = { 11, 5, 0 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UShort_5_6_5_Rev>
   using PixelUShort_5_6_5_Rev = PackedPixel<CImaGL::EPixelType::UShort_5_6_5_Rev>;
-  template<> inline const uint32_t* PixelUShort_5_6_5_Rev::componentMasks() { static uint32_t data[] = { 0b0000000000011111, 0b0000011111100000, (uint16_t)-1 }; return data; }
+  template<> inline const uint32_t* PixelUShort_5_6_5_Rev::componentMasks() { static uint32_t data[] = { 0b0000000000011111, 0b0000011111100000, 0b1111100000000000 }; return data; }
   template<> inline const int* PixelUShort_5_6_5_Rev::componentShifts() { static int data[] = { 0, 5, 11 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UShort_4_4_4_4>
   using PixelUShort_4_4_4_4 = PackedPixel<CImaGL::EPixelType::UShort_4_4_4_4>;
-  template<> inline const uint32_t* PixelUShort_4_4_4_4::componentMasks() { static uint32_t data[] = { (uint16_t)-1, 0b0000111100000000, 0b0000000011110000, 0b0000000000001111 }; return data; }
+  template<> inline const uint32_t* PixelUShort_4_4_4_4::componentMasks() { static uint32_t data[] = { 0b1111000000000000, 0b0000111100000000, 0b0000000011110000, 0b0000000000001111 }; return data; }
   template<> inline const int* PixelUShort_4_4_4_4::componentShifts() { static int data[] = { 12, 8, 4, 0 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UShort_4_4_4_4_Rev>
   using PixelUShort_4_4_4_4_Rev = PackedPixel<CImaGL::EPixelType::UShort_4_4_4_4_Rev>;
-  template<> inline const uint32_t* PixelUShort_4_4_4_4_Rev::componentMasks() { static uint32_t data[] = { 0b0000000000001111, 0b0000000011110000, 0b0000111100000000, (uint16_t)-1 }; return data; }
+  template<> inline const uint32_t* PixelUShort_4_4_4_4_Rev::componentMasks() { static uint32_t data[] = { 0b0000000000001111, 0b0000000011110000, 0b0000111100000000, 0b1111000000000000 }; return data; }
   template<> inline const int* PixelUShort_4_4_4_4_Rev::componentShifts() { static int data[] = { 0, 4, 8, 12 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UShort_5_5_5_1>
   using PixelUShort_5_5_5_1 = PackedPixel<CImaGL::EPixelType::UShort_5_5_5_1>;
-  template<> inline const uint32_t* PixelUShort_5_5_5_1::componentMasks() { static uint32_t data[] = { (uint16_t)-1, 0b0000011111000000, 0b0000000000111110, 0b0000000000000001 }; return data; }
+  template<> inline const uint32_t* PixelUShort_5_5_5_1::componentMasks() { static uint32_t data[] = { 0b1111100000000000, 0b0000011111000000, 0b0000000000111110, 0b0000000000000001 }; return data; }
   template<> inline const int* PixelUShort_5_5_5_1::componentShifts() { static int data[] = { 11, 6, 1, 0 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UShort_1_5_5_5_Rev>
   using PixelUShort_1_5_5_5_Rev = PackedPixel<CImaGL::EPixelType::UShort_1_5_5_5_Rev>;
-  template<> inline const uint32_t* PixelUShort_1_5_5_5_Rev::componentMasks() { static uint32_t data[] = { 0b0000000000011111, 0b0000001111100000, 0b0111110000000000, (uint16_t)-1}; return data; }
+  template<> inline const uint32_t* PixelUShort_1_5_5_5_Rev::componentMasks() { static uint32_t data[] = { 0b0000000000011111, 0b0000001111100000, 0b0111110000000000, 0b1000000000000000 }; return data; }
   template<> inline const int* PixelUShort_1_5_5_5_Rev::componentShifts() { static int data[] = { 0, 5, 10, 15 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UInt_8_8_8_8>
   using PixelUInt_8_8_8_8 = PackedPixel<CImaGL::EPixelType::UInt_8_8_8_8>;
-  template<> inline const uint32_t* PixelUInt_8_8_8_8::componentMasks() { static uint32_t data[] = { (uint32_t)-1, 0b00000000111111110000000000000000U, 0b00000000000000001111111100000000U, 0b00000000000000000000000011111111U }; return data; }
+  template<> inline const uint32_t* PixelUInt_8_8_8_8::componentMasks() { static uint32_t data[] = { 0b11111111000000000000000000000000U, 0b00000000111111110000000000000000U, 0b00000000000000001111111100000000U, 0b00000000000000000000000011111111U }; return data; }
   template<> inline const int* PixelUInt_8_8_8_8::componentShifts() { static int data[] = { 24, 16, 8, 0 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UInt_8_8_8_8_Rev>
   using PixelUInt_8_8_8_8_Rev = PackedPixel<CImaGL::EPixelType::UInt_8_8_8_8_Rev>;
-  template<> inline const uint32_t* PixelUInt_8_8_8_8_Rev::componentMasks() { static uint32_t data[] = { 0b00000000000000000000000011111111U, 0b00000000000000001111111100000000U, 0b00000000111111110000000000000000U, (uint32_t)-1 }; return data; }
+  template<> inline const uint32_t* PixelUInt_8_8_8_8_Rev::componentMasks() { static uint32_t data[] = { 0b00000000000000000000000011111111U, 0b00000000000000001111111100000000U, 0b00000000111111110000000000000000U, 0b11111111000000000000000000000000U }; return data; }
   template<> inline const int* PixelUInt_8_8_8_8_Rev::componentShifts() { static int data[] = { 0, 8, 16, 24 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UInt_10_10_10_2>
   using PixelUInt_10_10_10_2 = PackedPixel<CImaGL::EPixelType::UInt_10_10_10_2>;
-  template<> inline const uint32_t* PixelUInt_10_10_10_2::componentMasks() { static uint32_t data[] = { (uint32_t)-1, 0b00000000001111111111000000000000U, 0b00000000000000000000111111111100U, 0b00000000000000000000000000000011U }; return data; }
+  template<> inline const uint32_t* PixelUInt_10_10_10_2::componentMasks() { static uint32_t data[] = { 0b11111111110000000000000000000000U, 0b00000000001111111111000000000000U, 0b00000000000000000000111111111100U, 0b00000000000000000000000000000011U }; return data; }
   template<> inline const int* PixelUInt_10_10_10_2::componentShifts() { static int data[] = { 22, 12, 2, 0 }; return data; }
 
+  //!\brief Alias for PackedPixel<CImaGL::EPixelType::UInt_2_10_10_10_Rev>
   using PixelUInt_2_10_10_10_Rev = PackedPixel<CImaGL::EPixelType::UInt_2_10_10_10_Rev>;
-  template<> inline const uint32_t* PixelUInt_2_10_10_10_Rev::componentMasks() { static uint32_t data[] = { 0b00000000000000000000001111111111U, 0b00000000000011111111110000000000U, 0b00111111111100000000000000000000U, (uint32_t)-1 }; return data; }
+  template<> inline const uint32_t* PixelUInt_2_10_10_10_Rev::componentMasks() { static uint32_t data[] = { 0b00000000000000000000001111111111U, 0b00000000000011111111110000000000U, 0b00111111111100000000000000000000U, 0b11000000000000000000000000000000U }; return data; }
   template<> inline const int* PixelUInt_2_10_10_10_Rev::componentShifts() { static int data[] = { 0, 10, 20, 30 }; return data; }
+  ///@}
 
+  ///\defgroup component_info Pixel Component Information
+  /// @{
+
+  /**
+   * \brief Gets information about pixel component types.
+   * 
+   * \tparam pf Pixel format
+   * \tparam pt Pixel type
+   */
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
-  struct Comp { using type = void; using accum_type = void; };
+  struct Comp { 
+    /**
+     * \brief This is the smallest type of one pixel component.
+     */
+    using type = void;
+
+    /**
+     * \brief This is the smallest accumulation type of one pixel component.
+     * 
+     * This type is choosen to be large enough to avoid overflows while accumulating pixels
+     */
+    using accum_type = void; 
+  };
+
+  /// @}
+
+  ///\defgroup component_info_spec Specialisations
+  ///\ingroup component_info
+  ///@{
 
   template<> struct Comp<CImaGL::EPixelFormat::R,     CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
   template<> struct Comp<CImaGL::EPixelFormat::RG,    CImaGL::EPixelType::Byte> { using type = int8_t; using accum_type = short; };
@@ -903,25 +1097,67 @@ namespace imaGL {
 
   template<> struct Comp<CImaGL::EPixelFormat::RGB, CImaGL::EPixelType::UShort_5_6_5_Rev> { using type = Pack<CImaGL::EPixelType::UShort_5_6_5_Rev>::comp_type; using accum_type = unsigned int; };
   template<> struct Comp<CImaGL::EPixelFormat::BGR, CImaGL::EPixelType::UShort_5_6_5_Rev> { using type = Pack<CImaGL::EPixelType::UShort_5_6_5_Rev>::comp_type; using accum_type = unsigned int; };
+  /// @}
 
+  ///\addtogroup component_info
+  ///@{
+  /**
+   * \brief Gets number of components of a pixel.
+   *
+   * \tparam pf Pixel format
+   */
   template<CImaGL::EPixelFormat pf>
-  struct NbComp { static const size_t val = 0; };
+  struct NbComp { 
+    static const size_t val = 0; ///<\brief the number of components
+  };
+  ///@}
 
+  ///\addtogroup component_info_spec
+  ///@{
   template<> struct NbComp<CImaGL::EPixelFormat::R>    { static const size_t val = 1; };
   template<> struct NbComp<CImaGL::EPixelFormat::RG>   { static const size_t val = 2; };
   template<> struct NbComp<CImaGL::EPixelFormat::RGB>  { static const size_t val = 3; };
   template<> struct NbComp<CImaGL::EPixelFormat::BGR>  { static const size_t val = 3; };
   template<> struct NbComp<CImaGL::EPixelFormat::RGBA> { static const size_t val = 4; };
   template<> struct NbComp<CImaGL::EPixelFormat::BGRA> { static const size_t val = 4; };
+  ///@}
 
+  /**
+   * \ingroup pixels
+   * \brief Class for accumulate pixels
+   * 
+   * This class provides facilities to accumulate pixels. It provides arithmetics operators for pixels and avoid binary overflows.
+   * 
+   * \tparam type Is the data type used to accumulate pixels.
+   * It should be a value gotten from Comp<pf, pt>::accum_type
+   * \tparam nNbComp The number of components
+   */
   template<typename type, size_t nNbComp>
   class PixelAccumulator {
-    type m_pix[nNbComp] = { 0 }; 
+    type m_pix[nNbComp] = { 0 }; ///< Component values.
   public:
 
+    /**
+     * \brief Statically gets a component value.
+     * 
+     * \tparam n The component index
+     * 
+     * \return The component value.
+     */
     template<size_t n>
     type comp() const { static_assert(n < nNbComp); return m_pix[n]; }
 
+    /**
+     * \brief Accumulate a new pixel in this accumulator.
+     * 
+     * \tparam pixel_type Must be a Pixel<pf, pt> type
+     * 
+     * \param pix The pixel to accumulate
+     * 
+     * \note \p pix must have the same number of components as this pixel accumulator.
+     * 
+     * \return A reference to this pixel accumulator
+     */
     template<typename pixel_type>
     PixelAccumulator& operator+=(const pixel_type& pix)
     {
@@ -936,6 +1172,15 @@ namespace imaGL {
       return *this;
     }
 
+    /**
+     * \brief Divide all components by a scalar.
+     * 
+     * \tparam scalar Type of the scalar. Most of the times, it's automatically guessed by compiler.
+     * 
+     * \param val The scalar used to divide each component.
+     * 
+     * \return A reference to this pixel accumulator
+     */
     template<typename scalar>
     PixelAccumulator& operator/=(const scalar& val)
     {
@@ -944,6 +1189,15 @@ namespace imaGL {
       return *this;
     }
 
+    /**
+     * \brief Multiply all components by a scalar.
+     *
+     * \tparam scalar Type of the scalar. Most of the times, it's automatically guessed by compiler.
+     *
+     * \param val The scalar used to multiply each component.
+     *
+     * \return A reference to this pixel accumulator
+     */
     template<typename scalar>
     PixelAccumulator& operator*=(const scalar& val)
     {
@@ -953,21 +1207,74 @@ namespace imaGL {
     }
   };
 
+  ///\addtogroup pixels
+  ///@{
+
+  /**
+   * \brief A unique unsigned integer that describe a combination of pixel type and pixel format.
+   * 
+   * \tparam pf the Pixel format
+   * \tparam pt the Pixel type
+   */
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
   constexpr unsigned int pixel_type_id = static_cast<unsigned int>(pf) << 16 | static_cast<unsigned int>(pt);
+
+  /**
+   * \brief Retrieve the pixel format part of a pixel_type_id.
+   * 
+   * \tparam pid the pixel_type_id
+   */
   template<unsigned int pid>
   constexpr CImaGL::EPixelFormat pixel_id_format = static_cast<CImaGL::EPixelFormat>(pid >> 16);
+
+  /**
+   * \brief Retrieve the pixel type part of a pixel_type_id.
+   *
+   * \tparam pid the pixel_type_id
+   */
   template<unsigned int pid>
   constexpr CImaGL::EPixelType pixel_id_type = static_cast<CImaGL::EPixelType>(pid & 0xFFFF);
 
+  /**
+   * \brief Compute a pixel_type_id when it is not possible at compile time.
+   *
+   * \param pf the Pixel format
+   * \param pt the Pixel type
+   * 
+   * \return the corresponding pixel_type_id
+   */
   inline unsigned int fn_pixel_type_id(CImaGL::EPixelFormat pf, CImaGL::EPixelType pt) { return static_cast<unsigned int>(pf) << 16 | static_cast<unsigned int>(pt); }
+  ///@}
 
+  /**
+   * \ingroup pixels
+   * \brief Generic pixel manipulation class
+   * 
+   * This class let you access to packed or non packed pixel components. 
+   * 
+   * This class contains exactly and only the pixel bytes. So you can reinterpret_cast
+   * raw pixel pointers to a pointer of this class and vice versa. For example, if you
+   * have a pointer to raw OpenGL RGBA / UByte pixels, each pixel is then stored to four
+   * uint8_t (one for each color component). You can safely cast this raw pointer to a
+   * Pixel<CImaGL::EPixelFormat::RGBA, CImaGL::EPixelType::UByte> pointer.
+   * 
+   * \tparam pf the Pixel format of this pixel
+   * \tparam pf the Pixel type of this pixel
+   */
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
   class Pixel {
+    /**
+     * \brief This nested class store pixel components on double values.
+     *
+     * This class is internally used to avoid losing precision on interpollation.
+     */
     class floatPixel {
-      double m_pix[NbComp<pf>::val] = { 0.0 };
-      friend class Pixel<pf, pt>;
+      double m_pix[NbComp<pf>::val] = { 0.0 }; ///< The components
+      friend class Pixel<pf, pt>;              ///< Declare this class friend of the main class to let it access to private members
     public:
+      /**
+       * \brief Simple + operator.
+       */
       floatPixel operator+(const floatPixel& fp) const
       {
         floatPixel ret;
@@ -981,21 +1288,42 @@ namespace imaGL {
         return ret;
       }
     };
-    static constexpr size_t pixelsize = computePixelSize(pf, pt);
-    std::byte m_pix[pixelsize];
+    static constexpr size_t pixelsize = computePixelSize(pf, pt); ///< The size of this pixel in bytes
+    std::byte m_pix[pixelsize]; ///< Pixel data
   public:
-    //Type information about this class
-    using comp_type = typename Comp<pf, pt>::type;
-    using pack_type = PackedPixel<pt>;
+    /// \brief Type information about this class
+    ///@{
+    using comp_type = typename Comp<pf, pt>::type; ///<\brief Data type used to store one pixel component
+    using pack_type = PackedPixel<pt>;             ///<\brief If this pixel is packed, this is the PackedPixel type. Otherwise, this as no signification.
+    ///\brief The best PixelAccumulator type for this pixel
     using accum_type = PixelAccumulator<typename Comp<pf, pt>::accum_type, NbComp<pf>::val>;
-    //Static information about this class
-    static constexpr CImaGL::EPixelFormat pixel_format() { return pf; }
-    static constexpr CImaGL::EPixelType   pixel_type()   { return pt; }
-    static constexpr size_t               pixel_size()   { return pixelsize; }
-    static constexpr bool                 is_packed()    { return !std::is_pointer_v<typename pack_type::type>; }
-    static constexpr unsigned int         type_id()      { return pixel_type_id<pf ,pt>; }
-    static constexpr size_t               nb_comp()      { return NbComp<pf>::val; }
+    ///@}
 
+    /// \brief Static information about this class
+    ///@{
+    /// \brief Gets pixel format for this pixel.
+    /// \return A CImaGL::EPixelFormat enumeration value.
+    static constexpr CImaGL::EPixelFormat pixel_format() { return pf; }
+    /// \brief Gets pixel type for this pixel.
+    /// \return A CImaGL::EPixelType enumeration value.
+    static constexpr CImaGL::EPixelType   pixel_type()   { return pt; }
+    /// \brief Gets byte pixel size for this pixel.
+    static constexpr size_t               pixel_size()   { return pixelsize; }
+    /// \brief Check if this pixel is a packed one.
+    /// 
+    /// If it's true, you can safely reinterpret_cast this Pixel<pf, pt> to a PackedPixel<pt>
+    /// 
+    /// \see pack_type, PackedPixel<pt>
+    static constexpr bool                 is_packed()    { return !std::is_pointer_v<typename pack_type::type>; }
+    /// \brief Gets its unique pixel_type_id
+    static constexpr unsigned int         type_id()      { return pixel_type_id<pf ,pt>; }
+    /// \brief Gets the number of color components of this pixel
+    static constexpr size_t               nb_comp()      { return NbComp<pf>::val; }
+    ///@}
+
+    /**
+     * \brief Affectation from a PixelAccumulator.
+     */
     Pixel& operator=(const accum_type& accumulator)
     {
       comp<0>(static_cast<comp_type>(accumulator.template comp<0>()));
@@ -1008,6 +1336,9 @@ namespace imaGL {
       return *this;
     }
 
+    /**
+     * \brief Affectation from a floatPixel (used by interpolation).
+     */
     Pixel& operator=(const floatPixel& fp)
     {
       comp<0>(static_cast<comp_type>(fp.m_pix[0]));
@@ -1020,6 +1351,9 @@ namespace imaGL {
       return *this;
     }
 
+    /**
+     * \brief Scale this pixel (used by interpolation).
+     */
     floatPixel operator*(double scalar) const
     {
       floatPixel ret;
@@ -1032,6 +1366,9 @@ namespace imaGL {
         ret.m_pix[3] = comp<3>() * scalar;
       return ret;
     }
+
+    /// @{
+    /** \brief Simple (in)equality comparison operator. As usual...*/
 #ifdef __cpp_impl_three_way_comparison
     bool operator==(const Pixel& pix) const = default;
 #else
@@ -1047,9 +1384,13 @@ namespace imaGL {
       return !(*this == pix);
     }
 #endif // __cpp_impl_three_way_comparison
+    ///@}
 
-    //Accessors to components
-    //For reading pixel
+    ///@{
+    /**
+     * \brief Static reading access to one pixel component.
+     * \tparam n The component index.
+     */
     template<size_t n>
     comp_type comp() const {
       if constexpr (!is_packed())
@@ -1060,6 +1401,11 @@ namespace imaGL {
         return pointer->template comp<n>();
       }
     }
+    /**
+     * \brief Reading access to one pixel component.
+     * \param i The component index.
+     * \note If \p i is a constant in your code, consider using comp<n>() instead.
+     */
     comp_type comp_i(size_t i) const {
       switch (i) {
       case 0:  return comp<0>();
@@ -1081,7 +1427,11 @@ namespace imaGL {
       default: throw std::runtime_error("You tried to access a pixel component that doesn't exist");
       }
     }
-    //For writing to pixel
+    /**
+     * \brief Static writing access to one pixel component.
+     * \tparam n The component index.
+     * \param val The new value of the component.
+     */
     template<size_t n>
     void comp(comp_type val) {
       if constexpr (!is_packed())
@@ -1092,6 +1442,12 @@ namespace imaGL {
         pointer->template comp<n>(val);
       }
     }
+    /**
+     * \brief Writing access to one pixel component.
+     * \param i The component index.
+     * \param val The new value of the component.
+     * \note If \p i is a constant in your code, consider using comp<n>(val) instead.
+     */
     void comp_i(size_t i, comp_type val) {
       switch (i) {
       case 0: 
@@ -1124,18 +1480,28 @@ namespace imaGL {
       default: throw std::runtime_error("You tried to access a pixel component that doesn't exist");
       }
     }
-
+    ///@}
   };
 
   //![template declaration of function family]
+  /**
+   * \brief Returns the number of components of a Pixel.
+   * \tparam PixelType Must be one of Pixel<> classes
+   */
   template<typename PixelType>
   size_t t_nb_comp()
   {
     return NbComp<PixelType::pixel_format()>::val;
   }
+  //Declare a function familly map for the previous template
   _create_fnMap(t_nb_comp);
   //![template declaration of function family]
 
+  /**
+   * \brief Output a pixel to text stream.
+   * 
+   * \note Pixel components are separated by spaces. 
+   */
   template<CImaGL::EPixelFormat pf, CImaGL::EPixelType pt>
   std::ostream& operator<<(std::ostream& out, const Pixel<pf, pt>& pix)
   {
@@ -1151,7 +1517,7 @@ namespace imaGL {
     }
     else 
     {
-      out << " " << pix.template comp<0>();
+      out << pix.template comp<0>();
       if constexpr (Pixel<pf, pt>::nb_comp() > 1)
         out << " " << pix.template comp<1>();
       if constexpr (Pixel<pf, pt>::nb_comp() > 2)
