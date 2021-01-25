@@ -1269,7 +1269,7 @@ namespace imaGL {
      * This class is internally used to avoid losing precision on interpollation.
      */
     class floatPixel {
-      double m_pix[NbComp<pf>::val] = { 0.0 }; ///< The components
+      double m_pix[NbComp<pf>::val]; ///< The components
       friend class Pixel<pf, pt>;              ///< Declare this class friend of the main class to let it access to private members
     public:
       /**
