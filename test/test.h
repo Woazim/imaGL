@@ -131,7 +131,7 @@ void test_writingPixels()
 void export_FITS_file(const imaGL::CImaGL& img, std::string strFileName);
 
 template<typename pixel_type>
-void test_img_rescale(const imaGL::CImaGL& img, std::string_view strFileName, size_t width, size_t height)
+void test_img_rescale(const imaGL::CImaGL& img, std::string_view strFileName, std::int32_t width, std::int32_t height)
 {
   imaGL::CImaGL img_scaled(img);
   img_scaled.rescale(width, height);

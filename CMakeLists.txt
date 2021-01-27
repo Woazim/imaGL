@@ -1,7 +1,7 @@
 ﻿cmake_minimum_required (VERSION 3.9)
 
 
-project ("imaGL" VERSION 0.1 DESCRIPTION "A lightweight lib to load images in OpenGL applications")
+project ("imaGL" VERSION 0.1.1 DESCRIPTION "A lightweight lib to load images in OpenGL applications")
 
 # DO NOT REMOVE THE FOLLOWING COMMENT. It's needed for conan package.
 # conan insert

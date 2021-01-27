@@ -86,8 +86,8 @@ namespace imaGL {
   }
 
   const std::byte*     CImaGL::pixels()      const { return m_pData ? m_pData->m_vRawData.data() : nullptr; }
-  size_t               CImaGL::width()       const { return m_pData ? m_pData->m_nWidth : 0; }
-  size_t               CImaGL::height()      const { return m_pData ? m_pData->m_nHeight : 0; }
+  std::int32_t         CImaGL::width()       const { return m_pData ? m_pData->m_nWidth : 0; }
+  std::int32_t         CImaGL::height()      const { return m_pData ? m_pData->m_nHeight : 0; }
   CImaGL::EPixelFormat CImaGL::pixelformat() const { return m_pData ? m_pData->m_PixelFormat : EPixelFormat::Undefined; }
   CImaGL::EPixelType   CImaGL::pixeltype()   const { return m_pData ? m_pData->m_PixelType : EPixelType::Undefined; }
   size_t               CImaGL::pixelsize()   const { return m_pData ? m_pData->m_nPixelSize : 0; }
@@ -127,10 +127,10 @@ namespace imaGL {
     return fnMap[fn_pixel_type_id(m_pData->m_PixelFormat, m_pData->m_PixelType)](*m_pData, row, col, component);
   }
 
-  void CImaGL::rescale(size_t width, size_t height)
+  void CImaGL::rescale(std::int32_t width, std::int32_t height)
   {
     if (!m_pData) return;
-    const size_t lastHeight = m_pData->m_nHeight;
+    const std::int32_t lastHeight = m_pData->m_nHeight;
 
     //First, rescale image along x
     SPrivateImaGLData tempImg;
@@ -176,7 +176,7 @@ namespace imaGL {
 #if __cpp_lib_int_pow2 == 202002L
     using std::bit_ceil;
 #endif // __cpp_lib_int_pow2
-    rescale(bit_ceil(width()), bit_ceil(height()));
+    rescale(bit_ceil(static_cast<std::uint32_t>(width())), bit_ceil(static_cast<std::uint32_t>(height())));
   }
 
 }

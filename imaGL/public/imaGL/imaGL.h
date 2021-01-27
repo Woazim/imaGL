@@ -18,6 +18,7 @@
 #ifdef __cpp_impl_three_way_comparison
 #include <compare>
 #endif
+#include <cstdint>
 
 #if defined(_MSC_VER)
   //  Microsoft 
@@ -470,10 +471,10 @@ namespace imaGL {
     const std::byte*      pixels()      const;
     ///\brief Get image width in pixels.
     ///\note Directly compatible with \p width parameter of OpenGL's glTexImage*
-    size_t                width()       const;
+    std::int32_t          width()       const;
     ///\brief Get image height in pixels.
     ///\note Directly compatible with \p height parameter of OpenGL's glTexImage*
-    size_t                height()      const;
+    std::int32_t          height()      const;
     ///\brief Get pixel format.
     ///\note Compatible with \p format parameter of OpenGL's glTexImage* after casting it to GLenum type
     EPixelFormat          pixelformat() const;
@@ -522,7 +523,7 @@ namespace imaGL {
      * \param width New image width
      * \param height New image height
      */
-    void rescale(size_t width, size_t height);
+    void rescale(std::int32_t width, std::int32_t height);
 
     /**
      * \brief Rescale the image to the nearest power of 2 size.

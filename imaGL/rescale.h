@@ -56,7 +56,7 @@ namespace imaGL {
     using std::bit_floor;
 #endif // __cpp_lib_int_pow2
 
-    size_t nPrevPowerOf2 = bit_floor(nInvScaleFactor);
+    std::int32_t nPrevPowerOf2 = static_cast<std::int32_t>(bit_floor(nInvScaleFactor));
 
     const SPrivateImaGLData* pSource = &source;
     SPrivateImaGLData temp;
@@ -149,7 +149,7 @@ namespace imaGL {
 #if __cpp_lib_int_pow2 == 202002L
     using std::bit_floor;
 #endif // __cpp_lib_int_pow2
-    size_t nPrevPowerOf2 = bit_floor(nInvScaleFactor);
+    std::int32_t nPrevPowerOf2 = static_cast<std::int32_t>(bit_floor(nInvScaleFactor));
 
     const SPrivateImaGLData* pSource = &source;
     SPrivateImaGLData temp;
