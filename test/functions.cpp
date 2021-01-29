@@ -123,7 +123,7 @@ void export_FITS_file(const imaGL::CImaGL& img, std::string strFileName)
   {
   case 8:
     for (size_t chan = 0; chan < img.nb_comp(); ++chan)
-      for (size_t r = img.height() - 1; r < img.height(); --r) //When r is 0, it will go to max(size_t)
+      for (size_t r = 0; r < img.height(); ++r) 
         for (size_t c = 0; c < img.width(); ++c)
         {
           long long val = img.long_component_at(r, c, channelOrder[chan]);
@@ -134,7 +134,7 @@ void export_FITS_file(const imaGL::CImaGL& img, std::string strFileName)
     break;
   case 16:
     for (size_t chan = 0; chan < img.nb_comp(); ++chan)
-      for (size_t r = img.height() - 1; r < img.height(); --r) //When r is 0, it will go to max(size_t)
+      for (size_t r = 0; r < img.height(); ++r) 
         for (size_t c = 0; c < img.width(); ++c)
         {
           long long val = img.long_component_at(r, c, channelOrder[chan]);
@@ -145,7 +145,7 @@ void export_FITS_file(const imaGL::CImaGL& img, std::string strFileName)
     break;
   case 32:
     for (size_t chan = 0; chan < img.nb_comp(); ++chan)
-      for (size_t r = img.height() - 1; r < img.height(); --r) //When r is 0, it will go to max(size_t)
+      for (size_t r = 0; r < img.height(); ++r) 
         for (size_t c = 0; c < img.width(); ++c)
         {
           long long val = img.long_component_at(r, c, channelOrder[chan]);
@@ -156,7 +156,7 @@ void export_FITS_file(const imaGL::CImaGL& img, std::string strFileName)
     break;
   case -32:
     for (size_t chan = 0; chan < img.nb_comp(); ++chan)
-      for (size_t r = img.height() - 1; r < img.height(); --r) //When r is 0, it will go to max(size_t)
+      for (size_t r = 0; r < img.height(); ++r) 
         for (size_t c = 0; c < img.width(); ++c)
         {
           float val = img.float_component_at(r, c, channelOrder[chan]);

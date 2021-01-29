@@ -112,8 +112,9 @@ namespace imaGL {
     //Pointers to row starts
     std::vector<std::byte*> row_pointers;
     row_pointers.resize(ret.m_nHeight);
+    //Flip image since OpenGL expects texture to be read from bottom to top
     for (size_t i = 0; i < ret.m_nHeight; ++i)
-      row_pointers[i] = data.data() + i * ret.m_nWidth * pixelSize;
+      row_pointers[ret.m_nHeight - i - 1] = data.data() + i * ret.m_nWidth * pixelSize;
     //png_set_rows(png_ptr, info_ptr, row_pointers.data());
 
     //read the image

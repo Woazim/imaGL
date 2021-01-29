@@ -50,7 +50,7 @@ namespace imaGL {
     assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
     assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
 
-    double dInvScaleFactor = source.m_nWidth / (double)dest.m_nWidth;
+    double dInvScaleFactor = (source.m_nWidth - 1) / (double)(dest.m_nWidth - 1);
     size_t nInvScaleFactor = (size_t)dInvScaleFactor; //get integer part
 #if __cpp_lib_int_pow2 == 202002L
     using std::bit_floor;
@@ -94,14 +94,14 @@ namespace imaGL {
     }
 
     //Linear Interpolation
-    dInvScaleFactor = pSource->m_nWidth / (double)dest.m_nWidth;
+    dInvScaleFactor = (pSource->m_nWidth - 1) / (double)(dest.m_nWidth - 1);
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->m_vRawData.data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
 
     for (size_t row = 0; row < dest.m_nHeight; ++row)
       for (size_t destCol = 0; destCol < dest.m_nWidth; ++destCol)
       {
-        assert(row < dest.m_nHeight && destCol < dest.m_nWidth);
+        assert(row < dest.m_nHeight&& destCol < dest.m_nWidth);
         PixelType* destPix = &destPixels[row * dest.m_nWidth + destCol];
         typename PixelType::accum_type destPixelAccumulator;
 
@@ -109,10 +109,17 @@ namespace imaGL {
         size_t srcCol = static_cast<size_t>(dDecimalPart);
         dDecimalPart = dDecimalPart - srcCol;
 
-        assert(row < pSource->m_nHeight && srcCol < pSource->m_nWidth);
-        *destPix = srcPixels[row * pSource->m_nWidth + srcCol] * (1-dDecimalPart) + srcPixels[row * pSource->m_nWidth + srcCol + 1] * ( dDecimalPart);
+        if (dDecimalPart == 0.0)
+        {
+          assert(row < pSource->m_nHeight && srcCol < pSource->m_nWidth);
+          *destPix = srcPixels[row * pSource->m_nWidth + srcCol];
+        }
+        else
+        {
+          assert(row < pSource->m_nHeight && srcCol + 1 < pSource->m_nWidth);
+          *destPix = srcPixels[row * pSource->m_nWidth + srcCol] * (1 - dDecimalPart) + srcPixels[row * pSource->m_nWidth + srcCol + 1] * (dDecimalPart);
+        }
       }
-
 
   }
 
@@ -144,7 +151,7 @@ namespace imaGL {
     assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
     assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
 
-    double dInvScaleFactor = source.m_nHeight / (double)dest.m_nHeight;
+    double dInvScaleFactor = (source.m_nHeight - 1) / (double)(dest.m_nHeight - 1);
     size_t nInvScaleFactor = (size_t)dInvScaleFactor; //get integer part
 #if __cpp_lib_int_pow2 == 202002L
     using std::bit_floor;
@@ -187,7 +194,7 @@ namespace imaGL {
     }
 
     //Linear Interpolation
-    dInvScaleFactor = pSource->m_nHeight / (double)dest.m_nHeight;
+    dInvScaleFactor = (pSource->m_nHeight - 1) / (double)(dest.m_nHeight - 1);
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->m_vRawData.data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
 
@@ -202,8 +209,16 @@ namespace imaGL {
         size_t srcRow = static_cast<size_t>(dDecimalPart);
         dDecimalPart = dDecimalPart - srcRow;
 
-        assert(srcRow+1 < pSource->m_nHeight&& col < pSource->m_nWidth);
-        *destPix = srcPixels[srcRow * pSource->m_nWidth + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * pSource->m_nWidth + col] * (dDecimalPart);
+        if (dDecimalPart == 0.0)
+        {
+          assert(srcRow < pSource->m_nHeight && col < pSource->m_nWidth);
+          *destPix = srcPixels[srcRow * pSource->m_nWidth + col];
+        }
+        else
+        {
+          assert(srcRow + 1 < pSource->m_nHeight && col < pSource->m_nWidth);
+          *destPix = srcPixels[srcRow * pSource->m_nWidth + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * pSource->m_nWidth + col] * (dDecimalPart);
+        }
       }
 
 
@@ -239,14 +254,14 @@ namespace imaGL {
     assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
 
     //Linear Interpolation
-    double dInvScaleFactor = source.m_nWidth / (double)dest.m_nWidth;
+    double dInvScaleFactor = (source.m_nWidth - 1) / (double)(dest.m_nWidth - 1);
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.m_vRawData.data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
 
     for (size_t row = 0; row < dest.m_nHeight; ++row)
       for (size_t destCol = 0; destCol < dest.m_nWidth; ++destCol)
       {
-        assert(row < dest.m_nHeight&& destCol < dest.m_nWidth);
+        assert(row < dest.m_nHeight && destCol < dest.m_nWidth);
         PixelType* destPix = &destPixels[row * dest.m_nWidth + destCol];
         typename PixelType::accum_type destPixelAccumulator;
 
@@ -254,8 +269,16 @@ namespace imaGL {
         size_t srcCol = static_cast<size_t>(dDecimalPart);
         dDecimalPart = dDecimalPart - srcCol;
 
-        assert(row < source.m_nHeight&& srcCol + (srcCol < source.m_nWidth-1 ? 1 : 0) < source.m_nWidth);
-        *destPix = srcPixels[row * source.m_nWidth + srcCol] * (1 - dDecimalPart) + srcPixels[row * source.m_nWidth + srcCol + (srcCol < source.m_nWidth-1 ? 1 : 0)] * (dDecimalPart);
+        if (dDecimalPart == 0.0)
+        {
+          assert(row < source.m_nHeight && srcCol < source.m_nWidth);
+          *destPix = srcPixels[row * source.m_nWidth + srcCol];
+        }
+        else
+        {
+          assert(row < source.m_nHeight && srcCol + 1 < source.m_nWidth);
+          *destPix = srcPixels[row * source.m_nWidth + srcCol] * (1 - dDecimalPart) + srcPixels[row * source.m_nWidth + srcCol + 1] * (dDecimalPart);
+        }
       }
 
 
@@ -290,7 +313,7 @@ namespace imaGL {
     assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
 
     //Linear Interpolation
-    double dInvScaleFactor = source.m_nHeight / (double)dest.m_nHeight;
+    double dInvScaleFactor = (source.m_nHeight - 1) / (double)(dest.m_nHeight - 1);
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.m_vRawData.data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
 
@@ -305,8 +328,16 @@ namespace imaGL {
         size_t srcRow = static_cast<size_t>(dDecimalPart);
         dDecimalPart = dDecimalPart - srcRow;
 
-        assert(srcRow + (srcRow < source.m_nHeight-1 ? 1 : 0) < source.m_nHeight && col < source.m_nWidth);
-        *destPix = srcPixels[srcRow * source.m_nWidth + col] * (1 - dDecimalPart) + srcPixels[(srcRow + (srcRow < source.m_nHeight-1 ? 1 : 0)) * source.m_nWidth + col] * (dDecimalPart);
+        if (dDecimalPart == 0.0)
+        {
+          assert(srcRow < source.m_nHeight && col < source.m_nWidth);
+          *destPix = srcPixels[srcRow * source.m_nWidth + col];
+        }
+        else
+        {
+          assert(srcRow + 1 < source.m_nHeight && col < source.m_nWidth);
+          *destPix = srcPixels[srcRow * source.m_nWidth + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * source.m_nWidth + col] * (dDecimalPart);
+        }
       }
 
   }

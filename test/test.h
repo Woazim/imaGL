@@ -48,15 +48,22 @@ void test_reading(size_t width, size_t height, const imaGL::CImaGL& img, std::st
   const pixel_type* p1 = pixels.data();
   const pixel_type* p2 = reinterpret_cast<const pixel_type*>(img.pixels());
   size_t i = 0;
-  for (i = 0; i < nSize; ++i, ++p1, ++p2)
+  size_t row;
+  size_t fliped_row;
+  size_t col;
+  for (i = 0; i < nSize; ++i)
   {
-    if (*p1 != *p2)
+    row = i / width;
+    fliped_row = height - row - 1;
+    col = i % width;
+    if (p1[row * width + col] != p2[fliped_row * width + col])
     {
       break;
     }
   }
-  if (i != nSize)
-    INFO("Check fails for row = " << i / img.width() << " col = " << i - (i / img.width()) * img.width() << ". Pixel should be " << *p1 << " but is " << *p2 << ".");
+  INFO("Check fails for row = " << row << " col = " << col 
+    << ".\nPixel should be " << p1[row * width + col] << " but is " << p2[fliped_row * width + col] 
+    << ".\nTest image filename: " << filename);
   CHECK(i == nSize);
 }
 
@@ -138,9 +145,9 @@ void test_img_rescale(const imaGL::CImaGL& img, std::string_view strFileName, st
 
   //This comment is useful if you want to store your results in a file
   //The file is in FITS file format
-  //std::stringstream ss;
-  //ss << strFileName << "_" << width << "_" << height << ".fit";
-  //export_FITS_file(img_scaled, ss.str());
+  std::stringstream ss;
+  ss << strFileName << "_" << width << "_" << height << ".fit";
+  export_FITS_file(img_scaled, ss.str());
 
   std::stringstream ss2;
   ss2 << strFileName << "_" << width << "_" << height << ".png";
