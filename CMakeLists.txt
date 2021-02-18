@@ -10,6 +10,7 @@ option(BUILD_TESTING "Build test program" OFF)
 option(BUILD_DOCUMENTATION "Build doxygen documentation" OFF)
 option(STATIC_LIB "Build ImaGL as a static library" OFF)
 option(SUPPORT_PNG "Build ImaGL with PNG file format support" ON)
+option(SUPPORT_JPEG "Build ImaGL with JPEG file format support" ON)
 
 set(CONAN_PROFILE default CACHE STRING "The conan profile you need to use to compile. See conan documentation on https://conan.io")
 
@@ -34,6 +35,11 @@ foreach(CONANFILE_LINE ${CONANFILE})
 	#Test for libPNG
 	string(REGEX MATCH [[^.*libpng]] THISLINE ${CONANFILE_LINE})
 	if(THISLINE AND NOT SUPPORT_PNG)
+		string(PREPEND CONANFILE_LINE "# ")
+	endif()
+	#Test for libJPEG
+	string(REGEX MATCH [[^.*libjpeg]] THISLINE ${CONANFILE_LINE})
+	if(THISLINE AND NOT SUPPORT_JPEG)
 		string(PREPEND CONANFILE_LINE "# ")
 	endif()
 	#Test for catch2 (for testing)

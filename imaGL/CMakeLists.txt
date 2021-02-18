@@ -17,6 +17,11 @@ if(TARGET CONAN_PKG::libpng)
     target_link_libraries (libImaGL CONAN_PKG::libpng)
 endif()
 
+if(TARGET CONAN_PKG::libjpeg)
+    add_compile_definitions(_HAS_JPEG)
+    target_link_libraries (libImaGL CONAN_PKG::libjpeg)
+endif()
+
 file(GLOB_RECURSE ImaGL_SRC "*.h" "*.cpp")
 target_sources(libImaGL PRIVATE ${ImaGL_SRC})
 

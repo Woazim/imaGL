@@ -1,9 +1,11 @@
 [requires]
 libpng/[>=1.6.37]
 catch2/[>=2.13.2]
+libjpeg/9d
 
 [generators]
 cmake
 
 [options]
 libpng:shared=False
+libjpeg:shared=False
