@@ -206,6 +206,7 @@ namespace imaGL {
    * --------------------------- | ---------- | ----------------------------------------- | ---------------------------------------------------------------------
    * <em>none</em>               | all        | <tt>\"&nbsp;&nbsp;&nbsp;&nbsp;\"</tt>     | <tt>*reinterpret_cast<const uint32_t*>(\"&nbsp;&nbsp;&nbsp;&nbsp;\")</tt>
    * _HAS_PNG                    | png files  | <tt>"PNG "</tt>                           | <tt>*reinterpret_cast<const uint32_t*>("PNG ")</tt>
+   * _HAS_JPEG                   | jpeg files | <tt>"JPG "</tt> or <tt>"JPEG"</tt>        | <tt>*reinterpret_cast<const uint32_t*>("JPG ")</tt> or <tt>*reinterpret_cast<const uint32_t*>("JPEG")</tt>
    *
    * \note A string literal suffix <tt>_FF</tt> is declared in imaGL::string_literals namespace to help you
    * create CFileFormat from a string. To use it, refers to the following example.
