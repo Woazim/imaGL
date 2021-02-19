@@ -2,6 +2,7 @@
 #include "public/imaGL/imaGL.h"
 #include "loader.h"
 #include "loader_png.h"
+#include "loader_jpeg.h"
 #include <map>
 #include <set>
 
@@ -22,6 +23,9 @@ namespace imaGL {
 #ifdef _HAS_PNG
     CLoaderPNG m_png;
 #endif // _HAS_PNG
+#ifdef _HAS_JPEG
+    CLoaderJPEG m_jpeg;
+#endif // _HAS_JPEG
 
     //associative map between ff and loaders
     ::std::map<CFileFormat, ILoader*> m_mapLoaders;

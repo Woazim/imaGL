@@ -11,6 +11,11 @@ namespace imaGL {
     m_mapLoaders["PNG "_FF] = &m_png;
     m_setLoaders.insert(&m_png);
 #endif
+#ifdef _HAS_JPEG
+    m_mapLoaders["JPEG"_FF] = &m_jpeg;
+    m_mapLoaders["JPG "_FF] = &m_jpeg;
+    m_setLoaders.insert(&m_jpeg);
+#endif
   }
 
   ILoader& CLoaderFactory::getLoader(CFileFormat ff)

@@ -25,10 +25,10 @@ endif()
 target_link_libraries(testProg libImaGL)
 
 # copy dataset files
-file(GLOB testPngFiles "dataset/*.png" "dataset/*.png.txt")
+file(GLOB datasetFiles "dataset/*.png" "dataset/*.png.txt" "dataset/*.jpg" "dataset/*.jpg.txt")
 add_custom_command(TARGET testProg POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different 
-                       ${testPngFiles}
+                       ${datasetFiles}
                            $<TARGET_FILE_DIR:testProg>)
 # copy dynamic linked library
 if(NOT STATIC_LIB)
@@ -40,6 +40,7 @@ endif()
 
 set_property(TARGET testProg PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
+#PNG Tests
 add_test(NAME Reading_basi0g01.png COMMAND testProg [basi0g01] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_basi0g02.png COMMAND testProg [basi0g02] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_basi0g04.png COMMAND testProg [basi0g04] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
@@ -74,8 +75,14 @@ add_test(NAME Reading_z06n2c08.png COMMAND testProg [z06n2c08] WORKING_DIRECTORY
 add_test(NAME Reading_z09n2c08.png COMMAND testProg [z09n2c08] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 add_test(NAME Reading_test-16b.png COMMAND testProg [test-16b] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
-add_test(NAME Reading_PNG_from_memory COMMAND testProg [opening-from-memory] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_PNG_from_memory COMMAND testProg [opening-png-from-memory] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
+#JPEG tests
+add_test(NAME Reading_test-rgb.jpg COMMAND testProg [rgbjpeg] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_test-gray.jpg COMMAND testProg [grayjpeg] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+add_test(NAME Reading_JPG_from_memory COMMAND testProg [opening-jpg-from-memory] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
+
+#Generic CImaGL tests
 add_test(NAME Moving_objects COMMAND testProg [move-constructor] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)
 
 add_test(NAME Pixel_casts_for_reading COMMAND testProg [pixelcast-reading] WORKING_DIRECTORY $<TARGET_FILE_DIR:testProg>)

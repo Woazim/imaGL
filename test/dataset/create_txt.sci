@@ -14,11 +14,14 @@ function create_txt()
         end
         create_txt_for(png_file, png_file + ".txt", must_be_gray)
     end
+    for jpg_file = ls("*.jpg")'
+        create_txt_for(part(jpg_file, 1:$-4) + ".bmp", jpg_file + ".txt", %F)
+    end
 endfunction
 
-function create_txt_for(png_file, txt_filename, must_be_gray)
-    printf("Create txt file for %s\n", png_file)
-    img = imread(png_file);
+function create_txt_for(filename, txt_filename, must_be_gray)
+    printf("Create txt file for %s\n", filename)
+    img = imread(filename);
     depth = size(img,3);
     scale = 1;
     if(must_be_gray && depth >= 3)
