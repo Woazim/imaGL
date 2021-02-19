@@ -1,5 +1,7 @@
 #include "test.h"
 
+#ifdef _HAS_PNG
+
 //interlaced cases
 TEST_CASE("Opening a 1 bit Gray interlaced PNG file", "[basi0g01]")
 {
@@ -201,4 +203,6 @@ TEST_CASE("Opening a PNG file from memory", "[opening-png-from-memory]")
   imaGL::CImaGL imgUnknown(iss);
   test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgUnknown, "test-16b.png");
 }
+
+#endif // _HAS_PNG
 

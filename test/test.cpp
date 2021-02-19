@@ -8,10 +8,20 @@
 
 TEST_CASE("Moving a CImaGL to another", "[move-constructor]")
 {
-  imaGL::CImaGL imgMoveFrom("test-16b.png");
+#ifdef _HAS_PNG
+  std::string strFileName = "test-16b.png";
+  constexpr imaGL::CImaGL::EPixelFormat pf = imaGL::CImaGL::EPixelFormat::RGBA;
+  constexpr imaGL::CImaGL::EPixelType pt = imaGL::CImaGL::EPixelType::UShort;
+#elif _HAS_JPEG
+  std::string strFileName = "test-rgb.jpg";
+  constexpr imaGL::CImaGL::EPixelFormat pf = imaGL::CImaGL::EPixelFormat::RGB;
+  constexpr imaGL::CImaGL::EPixelType pt = imaGL::CImaGL::EPixelType::UByte;
+#endif
+
+  imaGL::CImaGL imgMoveFrom(strFileName);
   imaGL::CImaGL imgMoveTo(std::move(imgMoveFrom));
 
-  test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgMoveTo, "test-16b.png");
+  test_reading<imaGL::Pixel<pf, pt>>(200, 100, imgMoveTo, strFileName);
   CHECK(imgMoveFrom.pixelformat() == imaGL::CImaGL::EPixelFormat::Undefined);
   CHECK(imgMoveFrom.pixeltype() == imaGL::CImaGL::EPixelType::Undefined);
   CHECK(imgMoveFrom.pixelsize() == 0);
@@ -21,7 +31,7 @@ TEST_CASE("Moving a CImaGL to another", "[move-constructor]")
   CHECK(imgMoveFrom.height() == 0);
 
   imgMoveFrom = std::move(imgMoveTo);
-  test_reading<imaGL::Pixel<imaGL::CImaGL::EPixelFormat::RGBA, imaGL::CImaGL::EPixelType::UShort>>(200, 100, imgMoveFrom, "test-16b.png");
+  test_reading<imaGL::Pixel<pf, pt>>(200, 100, imgMoveFrom, strFileName);
   CHECK(imgMoveTo.pixelformat() == imaGL::CImaGL::EPixelFormat::Undefined);
   CHECK(imgMoveTo.pixeltype() == imaGL::CImaGL::EPixelType::Undefined);
   CHECK(imgMoveTo.pixelsize() == 0);
@@ -257,6 +267,7 @@ TEST_CASE("Pixel casts for writing", "[pixelcast-writing]")
   }
 }
 
+#ifdef _HAS_PNG
 
 TEST_CASE("Scaling image", "[scaling]")
 {
@@ -308,3 +319,5 @@ TEST_CASE("Scaling image (next power of 2)", "[scaling-pow2]")
   CHECK(img_16b_rgba.width() == 256);
   CHECK(img_16b_rgba.height() == 128);
 }
+
+#endif // _HAS_PNG
