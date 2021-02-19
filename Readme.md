@@ -91,9 +91,10 @@ To compile, you must have conan installed (see [conan.io](https://conan.io)). It
 For your information, imaGL can depend on (not necessarily, see below):
 
 - libpng 1.6.37+ / zlib 1.2.11
+- libjpeg 9d
 - catch2 2.13.2+
 
-imaGL can be built with Microsoft Visual Studio 2019 (16.5+), GCC 9+, CLang 10+, Apple-CLang 11.0.3+ (Xcode 11.4+).
+imaGL can be built with Microsoft Visual Studio 2019 (16+), GCC 9+, CLang 10+, Apple-CLang 11.0.3+ (Xcode 11.4+).
 
 ### Quick install
 
@@ -131,7 +132,11 @@ You can use cmake-gui or ccmake to configure your build. Possible options are:
   - Default OFF
 - SUPPORT_PNG
   - Brings PNG format support to imaGL
-  - Dependencies libPNG >= 1.6.37
+  - Dependencies libPNG >= 1.6.37 / zlib 1.2.11
+  - Default ON
+- SUPPORT_JPEG
+  - Brings JPEG format support to imaGL
+  - Dependencies libJPEG 9d
   - Default ON
 - CONAN_PROFILE
   - Define the conan profile to use to build and install dependencies.
@@ -158,6 +163,4 @@ ctest -C Release
 
 I will add:
 
-- JPG support
-- Image rescale support
 - More file format support
