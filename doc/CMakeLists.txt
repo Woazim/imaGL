@@ -7,6 +7,8 @@ set(DOXYGEN_EXAMPLE_PATH "../imaGL")
 set(DOXYGEN_SHOW_USED_FILES NO)
 set(DOXYGEN_VERBATIM_HEADER NO)
 set(DOXYGEN_FULL_PATH_NAMES NO)
+set(DOXYGEN_GENERATE_HTML NO)
+set(DOXYGEN_GENERATE_XML YES)
 
 #Create the script that will format Readme.md each time it has been modified
 set(DOC_SCRIPT
@@ -54,5 +56,18 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/Readme.md
   ARGS -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR} -DCURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake-doc.script
   DEPENDS ../Readme.md
   COMMENT "Formatting Readme.md for doxygen")
+
+find_package(Sphinx REQUIRED)
+
+set(SPHINX_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
+set(SPHINX_BUILD ${CMAKE_CURRENT_BINARY_DIR}/docs/sphinx)
+
+add_custom_target(Sphinx ALL
+                  COMMAND
+                  ${SPHINX_EXECUTABLE} -b html
+                  -Dbreathe_projects.imaGL=${CMAKE_CURRENT_BINARY_DIR}/${DOXYGEN_OUTPUT_DIRECTORY}/xml
+                  ${SPHINX_SOURCE} ${SPHINX_BUILD}
+                  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                  COMMENT "Generating documentation with Sphinx")
 
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/doc" DESTINATION .)

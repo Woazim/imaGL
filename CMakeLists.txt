@@ -72,8 +72,9 @@ conan_basic_setup(TARGETS)
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_STATIC_LIBRARY_SUFFIX "s${CMAKE_STATIC_LIBRARY_SUFFIX}")
 
-# Add subdirectories
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
+# Add subdirectories
 add_subdirectory ("imaGL")
 
 if(BUILD_TESTING)
