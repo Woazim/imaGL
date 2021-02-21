@@ -4,7 +4,11 @@
 #include "privateimagldata.h"
 #include <cstring>
 #include <algorithm>
+#ifdef __cpp_lib_endian
 #include <bit>
+#else
+#include <type_traits>
+#endif
 
 namespace imaGL {
 
