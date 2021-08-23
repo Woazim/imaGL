@@ -26,7 +26,7 @@ namespace imaGL {
     throw loader_not_found(ff);
   }
 
-  SPrivateImaGLData CLoaderUnknown::load(std::istream& is)
+  CPrivateImaGLData CLoaderUnknown::load(std::istream& is)
   {
     for (auto loader : CLoaderFactory::getInstance().m_setLoaders)
     {

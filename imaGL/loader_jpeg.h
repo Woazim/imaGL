@@ -30,7 +30,7 @@ namespace imaGL {
     }
 
   public:
-    SPrivateImaGLData load(std::istream& is) override;
+    CPrivateImaGLData load(std::istream& is) override;
   };
 
 }

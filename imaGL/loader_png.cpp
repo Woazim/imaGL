@@ -20,10 +20,9 @@ namespace imaGL {
       throw std::runtime_error("Unexpected end of PNG data");
   }
 
-  SPrivateImaGLData imaGL::CLoaderPNG::load(std::istream& is)
+  CPrivateImaGLData imaGL::CLoaderPNG::load(std::istream& is)
   {
     const size_t PNG_SIG_LENGTH = 8; //Must not exceed 8 (according to PNG spec)
-    SPrivateImaGLData ret;
 
     //First, test if this data is a png file
     //is.seekg(0, is.beg);
@@ -105,28 +104,19 @@ namespace imaGL {
 
 
     //Allocate memory for image
-    ret.m_nWidth = png_get_image_width(png_ptr, info_ptr);
-    ret.m_nHeight = png_get_image_height(png_ptr, info_ptr);
-    ret.m_PixelFormat = m_pf;
-    ret.m_PixelType = m_pt;
-    size_t pixelSize = computePixelSize(m_pf, m_pt);
-    //Buffer for image
-    std::vector<std::byte> data;
-    data.resize(ret.m_nWidth * ret.m_nHeight * pixelSize);
+    CPrivateImaGLData ret(png_get_image_width(png_ptr, info_ptr), png_get_image_height(png_ptr, info_ptr), m_pf, m_pt);
     //Pointers to row starts
     std::vector<std::byte*> row_pointers;
-    row_pointers.resize(ret.m_nHeight);
+    row_pointers.resize(ret.height());
     //Flip image since OpenGL expects texture to be read from bottom to top
-    for (size_t i = 0; i < ret.m_nHeight; ++i)
-      row_pointers[ret.m_nHeight - i - 1] = data.data() + i * ret.m_nWidth * pixelSize;
+    for (size_t i = 0; i < ret.height(); ++i)
+      row_pointers[ret.height() - i - 1] = ret.data().data() + i * ret.width() * ret.pixelSize();
     //png_set_rows(png_ptr, info_ptr, row_pointers.data());
 
     //read the image
     png_read_image(png_ptr, reinterpret_cast<png_bytepp>(row_pointers.data()));
 
     png_read_end(png_ptr, nullptr); //Needed to put the read position of the stream at the end of PNG stream.
-
-    ret.m_vRawData = std::move(data);
 
     //We must free memory, since we are gentlemen and ladies
     png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);

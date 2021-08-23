@@ -16,7 +16,7 @@ namespace imaGL {
     static void png_read_fn(png_structp, png_bytep, size_t);
 
   public:
-    SPrivateImaGLData load(std::istream& is) override;
+    CPrivateImaGLData load(std::istream& is) override;
   };
 
 }

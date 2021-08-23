@@ -4,7 +4,7 @@
 
 ## About
 
-imaGL is a lightweight C++ library that simplify reading image file for OpenGL applications.
+imaGL is a lightweight C++ library that simplifies reading image file for OpenGL applications.
 
 The following example shows how to use it in your client application:
 
