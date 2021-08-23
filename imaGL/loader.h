@@ -5,12 +5,12 @@
 
 namespace imaGL {
 
-  struct SPrivateImaGLData;
+  class CPrivateImaGLData;
 
   class ILoader
   {
   public:
-    virtual SPrivateImaGLData load(std::istream& is) = 0;
+    virtual CPrivateImaGLData load(std::istream& is) = 0;
   };
 
 }

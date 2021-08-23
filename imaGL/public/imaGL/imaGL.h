@@ -190,7 +190,7 @@ namespace imaGL {
 /** 
  * \brief Opaque pointer to private members. This help to export/import CImaGL class on dynamic linking.
  */
-  struct SPrivateImaGLData;
+  class CPrivateImaGLData;
 
   ///\defgroup file_manipulation File formats manipulation
   /// @{
@@ -411,7 +411,7 @@ namespace imaGL {
     };
 
   private:
-    SPrivateImaGLData* m_pData; //!< Opaque pointer to private data
+    CPrivateImaGLData* m_pData; //!< Opaque pointer to private data
 
   public:
     /// \name Construction/Destruction
