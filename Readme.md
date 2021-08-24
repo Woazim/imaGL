@@ -1,6 +1,6 @@
 # imaGL Readme
 
-[![Build Status](https://travis-ci.org/Woazim/imaGL.svg?branch=master)](https://travis-ci.org/Woazim/imaGL)
+[![Build Status](https://app.travis-ci.com/Woazim/imaGL.svg?branch=master)](https://app.travis-ci.com/Woazim/imaGL)
 
 ## About
 
