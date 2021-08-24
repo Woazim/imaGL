@@ -51,22 +51,26 @@ namespace imaGL {
     int bit_depth, color_type;
     bit_depth = png_get_bit_depth(png_ptr, info_ptr);
     color_type = png_get_color_type(png_ptr, info_ptr);
+
+    CImaGL::EPixelFormat pf = CImaGL::EPixelFormat::Undefined;
+    CImaGL::EPixelType pt = CImaGL::EPixelType::Undefined;
+
     switch (color_type)
     {
     case PNG_COLOR_TYPE_GRAY:
-      m_pf = CImaGL::EPixelFormat::R;
+      pf = CImaGL::EPixelFormat::R;
       break;
     case PNG_COLOR_TYPE_GRAY_ALPHA:
-      m_pf = CImaGL::EPixelFormat::RG;
+      pf = CImaGL::EPixelFormat::RG;
       break;
     case PNG_COLOR_TYPE_PALETTE: //Colormap is an array of png_color (so it is 8-bit RGB pixels)
-      m_pf = CImaGL::EPixelFormat::RGB;
+      pf = CImaGL::EPixelFormat::RGB;
       break;
     case PNG_COLOR_TYPE_RGB:
-      m_pf = CImaGL::EPixelFormat::RGB;
+      pf = CImaGL::EPixelFormat::RGB;
       break;
     case PNG_COLOR_TYPE_RGB_ALPHA:
-      m_pf = CImaGL::EPixelFormat::RGBA;
+      pf = CImaGL::EPixelFormat::RGBA;
       break;
     default:
       break;
@@ -78,13 +82,13 @@ namespace imaGL {
     case 4:
       //It can be only PNG_COLOR_TYPE_GRAY or PNG_COLOR_TYPE_PALETTE
       //Since pixels will be expanded, they will be stored in 1 byte.
-      m_pt = CImaGL::EPixelType::UByte;
+      pt = CImaGL::EPixelType::UByte;
       break;
     case 8:
-      m_pt = CImaGL::EPixelType::UByte;
+      pt = CImaGL::EPixelType::UByte;
       break;
     case 16:
-      m_pt = CImaGL::EPixelType::UShort;
+      pt = CImaGL::EPixelType::UShort;
       break;
     default:
       break;
@@ -104,7 +108,7 @@ namespace imaGL {
 
 
     //Allocate memory for image
-    CPrivateImaGLData ret(png_get_image_width(png_ptr, info_ptr), png_get_image_height(png_ptr, info_ptr), m_pf, m_pt);
+    CPrivateImaGLData ret(png_get_image_width(png_ptr, info_ptr), png_get_image_height(png_ptr, info_ptr), pf, pt);
     //Pointers to row starts
     std::vector<std::byte*> row_pointers;
     row_pointers.resize(ret.height());
