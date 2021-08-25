@@ -7,10 +7,13 @@ param (
     [ValidateSet("Release", "Debug")]
     [string] $Config,
     [ValidateSet("Static", "Dynamic")]
-    [string] $Linking
+    [string] $Linking,
+    [ValidateSet("ON", "OFF")]
+    [string] $Multithread
 )
 
-$ConfigBuildDoc=[PSCustomObject]@{"Config"="Debug";   "Linking"="Dynamic"}
+$ConfigBuildDoc=[PSCustomObject]@{"Config"="Release";   "Linking"="Dynamic"}
+$ConfigsInError = [System.Collections.ArrayList]@();
 
 if($PSBoundParameters.ContainsKey('Platform')) {
     $_Platform = ".*$Platform.*"
@@ -32,38 +35,55 @@ if($PSBoundParameters.ContainsKey('Compiler')) {
 
 if($PSBoundParameters.ContainsKey('Config')) {
     $_Config = ".*$Config.*"
-    $ConfigBuildDoc.Config = $Config
 } else {
     $_Config = ".*"
 }
 
 if($PSBoundParameters.ContainsKey('Linking')) {
     $_Linking = ".*$Linking.*"
-    $ConfigBuildDoc.Linking = $Linking
 } else {
     $_Linking = ".*"
+}
+
+if($PSBoundParameters.ContainsKey('Multithread')) {
+    $_Multithread = ".*$Multithread.*"
+} else {
+    $_Multithread = ".*"
 }
 
 New-Item build -ItemType Directory -Force | Out-Null
 Push-Location build
 
-$Configs=([PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Debug";   "Linking"="Dynamic"},
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Debug";   "Linking"="Static" },
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Release"; "Linking"="Dynamic"},
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Release"; "Linking"="Static" },
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Debug";   "Linking"="Dynamic"},
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Debug";   "Linking"="Static" },
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Release"; "Linking"="Dynamic"},
-          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Release"; "Linking"="Static" },
-          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Debug";   "Linking"="Dynamic"},
-          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Debug";   "Linking"="Static" },
-          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Release"; "Linking"="Dynamic"},
-          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Release"; "Linking"="Static" })
+$Configs=([PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Debug";   "Linking"="Dynamic"; "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Debug";   "Linking"="Static";  "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Release"; "Linking"="Dynamic"; "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Release"; "Linking"="Static";  "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Debug";   "Linking"="Dynamic"; "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Debug";   "Linking"="Static";  "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Release"; "Linking"="Dynamic"; "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Release"; "Linking"="Static";  "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Debug";   "Linking"="Dynamic"; "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Debug";   "Linking"="Static";  "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Release"; "Linking"="Dynamic"; "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Release"; "Linking"="Static";  "Multithread"="ON"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Debug";   "Linking"="Dynamic"; "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Debug";   "Linking"="Static";  "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Release"; "Linking"="Dynamic"; "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="Clang"; "Config"="Release"; "Linking"="Static";  "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Debug";   "Linking"="Dynamic"; "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Debug";   "Linking"="Static";  "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Release"; "Linking"="Dynamic"; "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="WSL"; "Compiler"="GCC";   "Config"="Release"; "Linking"="Static";  "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Debug";   "Linking"="Dynamic"; "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Debug";   "Linking"="Static";  "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Release"; "Linking"="Dynamic"; "Multithread"="OFF"},
+          [PSCustomObject]@{"Platform"="x64"; "Compiler"="";      "Config"="Release"; "Linking"="Static";  "Multithread"="OFF"})
 
 
 $Configs | ForEach-Object {
     $buildIt = $true;
-    if($_.Platform -match $_Platform) {
+    if(($_.Platform -match $_Platform) -and ($_.Multithread -match $_Multithread)) {
+        $Enable_Multithread = $_.Multithread
         if($_.Platform -eq "WSL") {
             if($_.Compiler -match $_Compiler) {
                 if($_.Compiler -eq "GCC") {
@@ -92,17 +112,20 @@ $Configs | ForEach-Object {
             }
 
             if($buildIt) {
-                New-Item "$($_.Platform)-$($_.Compiler)-$($_.Config)-$($_.Linking)" -ItemType Directory -Force | Out-Null
-                Push-Location "$($_.Platform)-$($_.Compiler)-$($_.Config)-$($_.Linking)"
+                New-Item "$($_.Platform)-$($_.Compiler)-$($_.Config)-$($_.Linking)-$($_.Multithread -eq "ON" ? 'MT' : 'ST')" -ItemType Directory -Force | Out-Null
+                Push-Location "$($_.Platform)-$($_.Compiler)-$($_.Config)-$($_.Linking)-$($_.Multithread -eq "ON" ? 'MT' : 'ST')"
                 if($_.Config -eq $ConfigBuildDoc.Config -and $_.Linking -eq $ConfigBuildDoc.Linking) {
                     $doc = "ON"
                 } else {
                     $doc = "OFF"
                 }
-                wsl cmake ../.. "-DCMAKE_BUILD_TYPE=$($_.Config)" "-DBUILD_DOCUMENTATION=$doc" "-DBUILD_TESTING=ON" "-DSTATIC_LIB=$Static" "-DSUPPORT_PNG=ON" "-DCMAKE_C_COMPILER=$CurrentCCompiler" "-DCMAKE_CXX_COMPILER=$CurrentCXXCompiler" "-DCONAN_PROFILE=$ConanProfile"
+                wsl cmake ../.. "-DCMAKE_BUILD_TYPE=$($_.Config)" "-DBUILD_DOCUMENTATION=$doc" "-DBUILD_TESTING=ON" "-DSTATIC_LIB=$Static" "-DENABLE_MULTITHREAD=$Enable_Multithread" "-DCMAKE_C_COMPILER=$CurrentCCompiler" "-DCMAKE_CXX_COMPILER=$CurrentCXXCompiler" "-DCONAN_PROFILE=$ConanProfile"
                 wsl cmake --build . --config $_.Config
                 wsl cmake --install . --prefix "../install/WSL/$($_.Compiler)"
                 wsl ctest -C $_.Config
+                if($LASTEXITCODE -ne 0) {
+                    $ConfigsInError.Add($_) | Out-Null
+                }
                 Pop-Location
             }
         } else { #Platform is x64 (so compiler is msvc)
@@ -120,17 +143,20 @@ $Configs | ForEach-Object {
             }
 
             if($buildIt) {
-                New-Item "$($_.Platform)-$($_.Config)-$($_.Linking)" -ItemType Directory -Force | Out-Null
-                Push-Location "$($_.Platform)-$($_.Config)-$($_.Linking)"
+                New-Item "$($_.Platform)-$($_.Config)-$($_.Linking)-$($_.Multithread -eq "ON" ? 'MT' : 'ST')" -ItemType Directory -Force | Out-Null
+                Push-Location "$($_.Platform)-$($_.Config)-$($_.Linking)-$($_.Multithread -eq "ON" ? 'MT' : 'ST')"
                 if($_.Config -eq $ConfigBuildDoc.Config -and $_.Linking -eq $ConfigBuildDoc.Linking) {
                     $doc = "ON"
                 } else {
                     $doc = "OFF"
                 }
-                cmake ../.. "-DCMAKE_BUILD_TYPE=$($_.Config)" "-DBUILD_DOCUMENTATION=$doc" "-DBUILD_TESTING=ON" "-DSTATIC_LIB=$Static" "-DSUPPORT_PNG=ON"
+                cmake ../.. "-DCMAKE_BUILD_TYPE=$($_.Config)" "-DBUILD_DOCUMENTATION=$doc" "-DBUILD_TESTING=ON" "-DSTATIC_LIB=$Static" "-DENABLE_MULTITHREAD=$Enable_Multithread"
                 cmake --build . --config $_.Config
                 cmake --install . --prefix ../install/x64
                 ctest -C $_.Config
+                if($LASTEXITCODE -ne 0) {
+                    $ConfigsInError.Add($_) | Out-Null
+                }
                 Pop-Location
             }
         }
@@ -138,3 +164,7 @@ $Configs | ForEach-Object {
 }
 
 Pop-Location
+
+if ($ConfigsInError.Count -ne 0) {
+    Write-Error "Some configurations raise errors: `n$($ConfigsInError | Out-String)"
+}

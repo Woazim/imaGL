@@ -3,6 +3,9 @@
 #if __cpp_lib_int_pow2 == 202002L
 #include <bit>
 #endif // __cpp_lib_int_pow2
+#ifdef _ENABLE_MULTITHREAD
+#include <thread>
+#endif // _ENABLE_MULTITHREAD
 
 namespace imaGL {
 
@@ -61,6 +64,10 @@ namespace imaGL {
     const CPrivateImaGLData* pSource = &source;
     CPrivateImaGLData temp;
 
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+#endif // _ENABLE_MULTITHREAD
+
     //Brute mipmaping
     if (nPrevPowerOf2 > 1)
     {
@@ -69,21 +76,34 @@ namespace imaGL {
       const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
       PixelType* destPixels = reinterpret_cast<PixelType*>(temp.data().data());
 
-      for (size_t row = 0; row < temp.height(); ++row)
-        for (size_t destCol = 0; destCol < temp.width(); ++destCol)
-        {
-          assert(row < temp.height() && destCol < temp.width());
-          PixelType* destPix = &destPixels[row * temp.width() + destCol];
-          typename PixelType::accum_type destPixelAccumulator;
-          for (size_t i = 0; i < nPrevPowerOf2; ++i)
+      auto mipmap_row_chunk = [&](size_t begin_row, size_t end_row) {
+        for (size_t row = begin_row; row < end_row; ++row)
+          for (size_t destCol = 0; destCol < temp.width(); ++destCol)
           {
-            size_t srcCol = destCol * nPrevPowerOf2 + i;
-            assert(row < pSource->height() && srcCol < pSource->width());
-            destPixelAccumulator += srcPixels[row * pSource->width() + srcCol];
+            assert(row < temp.height() && destCol < temp.width());
+            PixelType* destPix = &destPixels[row * temp.width() + destCol];
+            typename PixelType::accum_type destPixelAccumulator;
+            for (size_t i = 0; i < nPrevPowerOf2; ++i)
+            {
+              size_t srcCol = destCol * nPrevPowerOf2 + i;
+              assert(row < pSource->height() && srcCol < pSource->width());
+              destPixelAccumulator += srcPixels[row * pSource->width() + srcCol];
+            }
+            destPixelAccumulator /= nPrevPowerOf2;
+            *destPix = destPixelAccumulator;
           }
-          destPixelAccumulator /= nPrevPowerOf2;
-          *destPix = destPixelAccumulator;
-        }
+      };
+#ifdef _ENABLE_MULTITHREAD
+      const auto nNbRowsByThread = temp.height() / nNbThreads;
+      std::vector<std::thread> thread_pool(nNbThreads);
+      for (size_t i = 0; i < nNbThreads-1; ++i)
+        thread_pool[i] = std::thread(mipmap_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+      thread_pool[nNbThreads - 1] = std::thread(mipmap_row_chunk, (nNbThreads - 1) * nNbRowsByThread, temp.height());
+      for (auto& th : thread_pool)
+        th.join();
+#else // _ENABLE_MULTITHREAD
+      mipmap_row_chunk(0, temp.height());
+#endif // _ENABLE_MULTITHREAD
 
       pSource = &temp;
     }
@@ -93,28 +113,42 @@ namespace imaGL {
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t row = 0; row < dest.height(); ++row)
-      for (size_t destCol = 0; destCol < dest.width(); ++destCol)
-      {
-        assert(row < dest.height()&& destCol < dest.width());
-        PixelType* destPix = &destPixels[row * dest.width() + destCol];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destCol * dInvScaleFactor;
-        size_t srcCol = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcCol;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t row = begin_row; row < end_row; ++row)
+        for (size_t destCol = 0; destCol < dest.width(); ++destCol)
         {
-          assert(row < pSource->height() && srcCol < pSource->width());
-          *destPix = srcPixels[row * pSource->width() + srcCol];
+          assert(row < dest.height() && destCol < dest.width());
+          PixelType* destPix = &destPixels[row * dest.width() + destCol];
+          typename PixelType::accum_type destPixelAccumulator;
+
+          double dDecimalPart = destCol * dInvScaleFactor;
+          size_t srcCol = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcCol;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(row < pSource->height() && srcCol < pSource->width());
+            *destPix = srcPixels[row * pSource->width() + srcCol];
+          }
+          else
+          {
+            assert(row < pSource->height() && srcCol + 1 < pSource->width());
+            *destPix = srcPixels[row * pSource->width() + srcCol] * (1 - dDecimalPart) + srcPixels[row * pSource->width() + srcCol + 1] * (dDecimalPart);
+          }
         }
-        else
-        {
-          assert(row < pSource->height() && srcCol + 1 < pSource->width());
-          *destPix = srcPixels[row * pSource->width() + srcCol] * (1 - dDecimalPart) + srcPixels[row * pSource->width() + srcCol + 1] * (dDecimalPart);
-        }
-      }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
@@ -156,6 +190,10 @@ namespace imaGL {
     const CPrivateImaGLData* pSource = &source;
     CPrivateImaGLData temp;
 
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+#endif // _ENABLE_MULTITHREAD
+
     //Brute mipmaping
     if (nPrevPowerOf2 > 1)
     {
@@ -164,21 +202,35 @@ namespace imaGL {
       const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
       PixelType* destPixels = reinterpret_cast<PixelType*>(temp.data().data());
 
-      for (size_t destRow = 0; destRow < temp.height(); ++destRow)
-        for (size_t col = 0; col < temp.width(); ++col)
-        {
-          assert(destRow < temp.height()&& col < temp.width());
-          PixelType* destPix = &destPixels[destRow * temp.width() + col];
-          typename PixelType::accum_type destPixelAccumulator;
-          for (size_t i = 0; i < nPrevPowerOf2; ++i)
+      auto mipmap_row_chunk = [&](size_t begin_row, size_t end_row) {
+        for (size_t destRow = begin_row; destRow < end_row; ++destRow)
+          for (size_t col = 0; col < temp.width(); ++col)
           {
-            size_t srcRow = destRow * nPrevPowerOf2 + i;
-            assert(srcRow < pSource->height()&& col < pSource->width());
-            destPixelAccumulator += srcPixels[srcRow * pSource->width() + col];
+            assert(destRow < temp.height() && col < temp.width());
+            PixelType* destPix = &destPixels[destRow * temp.width() + col];
+            typename PixelType::accum_type destPixelAccumulator;
+            for (size_t i = 0; i < nPrevPowerOf2; ++i)
+            {
+              size_t srcRow = destRow * nPrevPowerOf2 + i;
+              assert(srcRow < pSource->height() && col < pSource->width());
+              destPixelAccumulator += srcPixels[srcRow * pSource->width() + col];
+            }
+            destPixelAccumulator /= nPrevPowerOf2;
+            *destPix = destPixelAccumulator;
           }
-          destPixelAccumulator /= nPrevPowerOf2;
-          *destPix = destPixelAccumulator;
-        }
+      };
+
+#ifdef _ENABLE_MULTITHREAD
+      const auto nNbRowsByThread = temp.height() / nNbThreads;
+      std::vector<std::thread> thread_pool(nNbThreads);
+      for (size_t i = 0; i < nNbThreads - 1; ++i)
+        thread_pool[i] = std::thread(mipmap_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+      thread_pool[nNbThreads - 1] = std::thread(mipmap_row_chunk, (nNbThreads - 1) * nNbRowsByThread, temp.height());
+      for (auto& th : thread_pool)
+        th.join();
+#else // _ENABLE_MULTITHREAD
+      mipmap_row_chunk(0, temp.height());
+#endif // _ENABLE_MULTITHREAD
 
       pSource = &temp;
     }
@@ -188,29 +240,42 @@ namespace imaGL {
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t destRow = 0; destRow < dest.height(); ++destRow)
-      for (size_t col = 0; col < dest.width(); ++col)
-      {
-        assert(destRow < dest.height()&& col < dest.width());
-        PixelType* destPix = &destPixels[destRow * dest.width() + col];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destRow * dInvScaleFactor;
-        size_t srcRow = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcRow;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t destRow = begin_row; destRow < end_row; ++destRow)
+        for (size_t col = 0; col < dest.width(); ++col)
         {
-          assert(srcRow < pSource->height() && col < pSource->width());
-          *destPix = srcPixels[srcRow * pSource->width() + col];
-        }
-        else
-        {
-          assert(srcRow + 1 < pSource->height() && col < pSource->width());
-          *destPix = srcPixels[srcRow * pSource->width() + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * pSource->width() + col] * (dDecimalPart);
-        }
-      }
+          assert(destRow < dest.height() && col < dest.width());
+          PixelType* destPix = &destPixels[destRow * dest.width() + col];
+          typename PixelType::accum_type destPixelAccumulator;
 
+          double dDecimalPart = destRow * dInvScaleFactor;
+          size_t srcRow = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcRow;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(srcRow < pSource->height() && col < pSource->width());
+            *destPix = srcPixels[srcRow * pSource->width() + col];
+          }
+          else
+          {
+            assert(srcRow + 1 < pSource->height() && col < pSource->width());
+            *destPix = srcPixels[srcRow * pSource->width() + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * pSource->width() + col] * (dDecimalPart);
+          }
+        }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
@@ -248,29 +313,43 @@ namespace imaGL {
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.data().data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t row = 0; row < dest.height(); ++row)
-      for (size_t destCol = 0; destCol < dest.width(); ++destCol)
-      {
-        assert(row < dest.height() && destCol < dest.width());
-        PixelType* destPix = &destPixels[row * dest.width() + destCol];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destCol * dInvScaleFactor;
-        size_t srcCol = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcCol;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t row = begin_row; row < end_row; ++row)
+        for (size_t destCol = 0; destCol < dest.width(); ++destCol)
         {
-          assert(row < source.height() && srcCol < source.width());
-          *destPix = srcPixels[row * source.width() + srcCol];
-        }
-        else
-        {
-          assert(row < source.height() && srcCol + 1 < source.width());
-          *destPix = srcPixels[row * source.width() + srcCol] * (1 - dDecimalPart) + srcPixels[row * source.width() + srcCol + 1] * (dDecimalPart);
-        }
-      }
+          assert(row < dest.height() && destCol < dest.width());
+          PixelType* destPix = &destPixels[row * dest.width() + destCol];
+          typename PixelType::accum_type destPixelAccumulator;
 
+          double dDecimalPart = destCol * dInvScaleFactor;
+          size_t srcCol = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcCol;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(row < source.height() && srcCol < source.width());
+            *destPix = srcPixels[row * source.width() + srcCol];
+          }
+          else
+          {
+            assert(row < source.height() && srcCol + 1 < source.width());
+            *destPix = srcPixels[row * source.width() + srcCol] * (1 - dDecimalPart) + srcPixels[row * source.width() + srcCol + 1] * (dDecimalPart);
+          }
+        }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
@@ -307,28 +386,43 @@ namespace imaGL {
     const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.data().data());
     PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t destRow = 0; destRow < dest.height(); ++destRow)
-      for (size_t col = 0; col < dest.width(); ++col)
-      {
-        assert(destRow < dest.height()&& col < dest.width());
-        PixelType* destPix = &destPixels[destRow * dest.width() + col];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destRow * dInvScaleFactor;
-        size_t srcRow = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcRow;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t destRow = begin_row; destRow < end_row; ++destRow)
+        for (size_t col = 0; col < dest.width(); ++col)
         {
-          assert(srcRow < source.height() && col < source.width());
-          *destPix = srcPixels[srcRow * source.width() + col];
+          assert(destRow < dest.height() && col < dest.width());
+          PixelType* destPix = &destPixels[destRow * dest.width() + col];
+          typename PixelType::accum_type destPixelAccumulator;
+
+          double dDecimalPart = destRow * dInvScaleFactor;
+          size_t srcRow = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcRow;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(srcRow < source.height() && col < source.width());
+            *destPix = srcPixels[srcRow * source.width() + col];
+          }
+          else
+          {
+            assert(srcRow + 1 < source.height() && col < source.width());
+            *destPix = srcPixels[srcRow * source.width() + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * source.width() + col] * (dDecimalPart);
+          }
         }
-        else
-        {
-          assert(srcRow + 1 < source.height() && col < source.width());
-          *destPix = srcPixels[srcRow * source.width() + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * source.width() + col] * (dDecimalPart);
-        }
-      }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
