@@ -3,12 +3,10 @@
 
 project ("imaGL" VERSION 0.1.1 DESCRIPTION "A lightweight lib to load images in OpenGL applications")
 
-# DO NOT REMOVE THE FOLLOWING COMMENT. It's needed for conan package.
-# conan insert
-
 option(BUILD_TESTING "Build test program" OFF)
 option(BUILD_DOCUMENTATION "Build doxygen documentation" OFF)
 option(STATIC_LIB "Build ImaGL as a static library" OFF)
+option(ENABLE_MULTITHREAD "Build ImaGL with multithread support" ON)
 option(SUPPORT_PNG "Build ImaGL with PNG file format support" ON)
 option(SUPPORT_JPEG "Build ImaGL with JPEG file format support" ON)
 

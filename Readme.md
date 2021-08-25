@@ -1,10 +1,10 @@
 # imaGL Readme
 
-[![Build Status](https://travis-ci.org/Woazim/imaGL.svg?branch=master)](https://travis-ci.org/Woazim/imaGL)
+[![Build Status](https://app.travis-ci.com/Woazim/imaGL.svg?branch=master)](https://app.travis-ci.com/Woazim/imaGL)
 
 ## About
 
-imaGL is a lightweight C++ library that simplify reading image file for OpenGL applications.
+imaGL is a lightweight C++ library that simplifies reading image file for OpenGL applications.
 
 The following example shows how to use it in your client application:
 
@@ -109,7 +109,7 @@ cmake --build . --config Release
 cmake --install . --config Release
 ```
 
-This invocation should configure, build then install imaGL. It has been tested on Windows 10 with Visual Studio 2019, Linux (Ubuntu 20.04) with gcc 9.3 and mac OSX Catalina (10.15.5) with XCode 11.4.1 (Apple-CLang 11.0.3).
+This invocation should configure, build then install imaGL. It has been tested on Windows 10 with Visual Studio 2019 (16.2+), on Linux (Ubuntu 20.04) with gcc 9.3 and clang 10.0.0 and on Mac OSX Catalina (10.15.5) with XCode 11.4.1 (Apple-CLang 11.0.3).
 
 Optionnaly, you can append `--prefix <dir>` at `cmake --install` command line to choose your installation directory.
 
@@ -130,6 +130,9 @@ You can use cmake-gui or ccmake to configure your build. Possible options are:
 - STATIC_LIB
   - Build imaGL as a static (ON) or dynamic (OFF) library
   - Default OFF
+- ENABLE_MULTITHREAD
+  - Build ImaGL with multithread support
+  - Default ON
 - SUPPORT_PNG
   - Brings PNG format support to imaGL
   - Dependencies libPNG >= 1.6.37 / zlib 1.2.11

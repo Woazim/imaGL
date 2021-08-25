@@ -12,7 +12,7 @@ namespace imaGL {
   class CLoaderUnknown : public ILoader
   {
   public:
-    SPrivateImaGLData load(std::istream& is) override;
+    CPrivateImaGLData load(std::istream& is) override;
   };
 
   //The factory (as singleton)

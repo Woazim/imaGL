@@ -8,7 +8,16 @@ if(STATIC_LIB)
 else()
     add_library (libImaGL SHARED)
 endif()
-set_property(TARGET libImaGL PROPERTY OUTPUT_NAME imaGL)
+if(ENABLE_MULTITHREAD)
+    add_compile_definitions(_ENABLE_MULTITHREAD)
+    set(MT_SUFFIX m)
+endif()
+
+if(MSVC)
+    target_compile_options(libImaGL PRIVATE /bigobj)
+endif()
+
+set_property(TARGET libImaGL PROPERTY OUTPUT_NAME "imaGL${MT_SUFFIX}")
 set_property(TARGET libImaGL PROPERTY PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/public/imaGL/imaGL.h")
 target_include_directories(libImaGL INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/public")
 

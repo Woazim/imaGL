@@ -3,6 +3,9 @@
 #if __cpp_lib_int_pow2 == 202002L
 #include <bit>
 #endif // __cpp_lib_int_pow2
+#ifdef _ENABLE_MULTITHREAD
+#include <thread>
+#endif // _ENABLE_MULTITHREAD
 
 namespace imaGL {
 
@@ -40,17 +43,17 @@ namespace imaGL {
 #endif // !__cpp_lib_int_pow2
 
   template<typename PixelType>
-  void t_downscale_x(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  void t_downscale_x(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth > dest.m_nWidth);
-    assert(source.m_nHeight == dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() > dest.width());
+    assert(source.height() == dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
-    double dInvScaleFactor = (source.m_nWidth - 1) / (double)(dest.m_nWidth - 1);
+    double dInvScaleFactor = (source.width() - 1) / (double)(dest.width() - 1);
     size_t nInvScaleFactor = (size_t)dInvScaleFactor; //get integer part
 #if __cpp_lib_int_pow2 == 202002L
     using std::bit_floor;
@@ -58,305 +61,386 @@ namespace imaGL {
 
     std::int32_t nPrevPowerOf2 = static_cast<std::int32_t>(bit_floor(nInvScaleFactor));
 
-    const SPrivateImaGLData* pSource = &source;
-    SPrivateImaGLData temp;
+    const CPrivateImaGLData* pSource = &source;
+    CPrivateImaGLData temp;
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+#endif // _ENABLE_MULTITHREAD
 
     //Brute mipmaping
     if (nPrevPowerOf2 > 1)
     {
-      temp.m_nHeight = pSource->m_nHeight;
-      temp.m_nWidth = pSource->m_nWidth / nPrevPowerOf2;
-      temp.m_nPixelSize = pSource->m_nPixelSize;
-      temp.m_PixelFormat = pSource->m_PixelFormat;
-      temp.m_PixelType = pSource->m_PixelType;
-      temp.m_vRawData = std::vector<std::byte>(temp.m_nHeight * temp.m_nWidth * temp.m_nPixelSize);
+      temp = CPrivateImaGLData(pSource->width() / nPrevPowerOf2, pSource->height(), pSource->pixelFormat(), pSource->pixelType());
 
-      const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->m_vRawData.data());
-      PixelType* destPixels = reinterpret_cast<PixelType*>(temp.m_vRawData.data());
+      const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
+      PixelType* destPixels = reinterpret_cast<PixelType*>(temp.data().data());
 
-      for (size_t row = 0; row < temp.m_nHeight; ++row)
-        for (size_t destCol = 0; destCol < temp.m_nWidth; ++destCol)
-        {
-          assert(row < temp.m_nHeight && destCol < temp.m_nWidth);
-          PixelType* destPix = &destPixels[row * temp.m_nWidth + destCol];
-          typename PixelType::accum_type destPixelAccumulator;
-          for (size_t i = 0; i < nPrevPowerOf2; ++i)
+      auto mipmap_row_chunk = [&](size_t begin_row, size_t end_row) {
+        for (size_t row = begin_row; row < end_row; ++row)
+          for (size_t destCol = 0; destCol < temp.width(); ++destCol)
           {
-            size_t srcCol = destCol * nPrevPowerOf2 + i;
-            assert(row < pSource->m_nHeight && srcCol < pSource->m_nWidth);
-            destPixelAccumulator += srcPixels[row * pSource->m_nWidth + srcCol];
+            assert(row < temp.height() && destCol < temp.width());
+            PixelType* destPix = &destPixels[row * temp.width() + destCol];
+            typename PixelType::accum_type destPixelAccumulator;
+            for (size_t i = 0; i < nPrevPowerOf2; ++i)
+            {
+              size_t srcCol = destCol * nPrevPowerOf2 + i;
+              assert(row < pSource->height() && srcCol < pSource->width());
+              destPixelAccumulator += srcPixels[row * pSource->width() + srcCol];
+            }
+            destPixelAccumulator /= nPrevPowerOf2;
+            *destPix = destPixelAccumulator;
           }
-          destPixelAccumulator /= nPrevPowerOf2;
-          *destPix = destPixelAccumulator;
-        }
+      };
+#ifdef _ENABLE_MULTITHREAD
+      const auto nNbRowsByThread = temp.height() / nNbThreads;
+      std::vector<std::thread> thread_pool(nNbThreads);
+      for (size_t i = 0; i < nNbThreads-1; ++i)
+        thread_pool[i] = std::thread(mipmap_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+      thread_pool[nNbThreads - 1] = std::thread(mipmap_row_chunk, (nNbThreads - 1) * nNbRowsByThread, temp.height());
+      for (auto& th : thread_pool)
+        th.join();
+#else // _ENABLE_MULTITHREAD
+      mipmap_row_chunk(0, temp.height());
+#endif // _ENABLE_MULTITHREAD
 
       pSource = &temp;
     }
 
     //Linear Interpolation
-    dInvScaleFactor = (pSource->m_nWidth - 1) / (double)(dest.m_nWidth - 1);
-    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->m_vRawData.data());
-    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
+    dInvScaleFactor = (pSource->width() - 1) / (double)(dest.width() - 1);
+    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
+    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t row = 0; row < dest.m_nHeight; ++row)
-      for (size_t destCol = 0; destCol < dest.m_nWidth; ++destCol)
-      {
-        assert(row < dest.m_nHeight&& destCol < dest.m_nWidth);
-        PixelType* destPix = &destPixels[row * dest.m_nWidth + destCol];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destCol * dInvScaleFactor;
-        size_t srcCol = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcCol;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t row = begin_row; row < end_row; ++row)
+        for (size_t destCol = 0; destCol < dest.width(); ++destCol)
         {
-          assert(row < pSource->m_nHeight && srcCol < pSource->m_nWidth);
-          *destPix = srcPixels[row * pSource->m_nWidth + srcCol];
+          assert(row < dest.height() && destCol < dest.width());
+          PixelType* destPix = &destPixels[row * dest.width() + destCol];
+          typename PixelType::accum_type destPixelAccumulator;
+
+          double dDecimalPart = destCol * dInvScaleFactor;
+          size_t srcCol = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcCol;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(row < pSource->height() && srcCol < pSource->width());
+            *destPix = srcPixels[row * pSource->width() + srcCol];
+          }
+          else
+          {
+            assert(row < pSource->height() && srcCol + 1 < pSource->width());
+            *destPix = srcPixels[row * pSource->width() + srcCol] * (1 - dDecimalPart) + srcPixels[row * pSource->width() + srcCol + 1] * (dDecimalPart);
+          }
         }
-        else
-        {
-          assert(row < pSource->m_nHeight && srcCol + 1 < pSource->m_nWidth);
-          *destPix = srcPixels[row * pSource->m_nWidth + srcCol] * (1 - dDecimalPart) + srcPixels[row * pSource->m_nWidth + srcCol + 1] * (dDecimalPart);
-        }
-      }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
   _create_fnMap(t_downscale_x);
 
-  inline void downscale_x(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  inline void downscale_x(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth > dest.m_nWidth);
-    assert(source.m_nHeight == dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() > dest.width());
+    assert(source.height() == dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
     static auto fnMap = create_fnMap(t_downscale_x);
 
-    fnMap[fn_pixel_type_id(source.m_PixelFormat, source.m_PixelType)](source, dest);
+    fnMap[fn_pixel_type_id(source.pixelFormat(), source.pixelType())](source, dest);
   }
 
   template<typename PixelType>
-  void t_downscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  void t_downscale_y(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth == dest.m_nWidth);
-    assert(source.m_nHeight > dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() == dest.width());
+    assert(source.height() > dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
-    double dInvScaleFactor = (source.m_nHeight - 1) / (double)(dest.m_nHeight - 1);
+    double dInvScaleFactor = (source.height() - 1) / (double)(dest.height() - 1);
     size_t nInvScaleFactor = (size_t)dInvScaleFactor; //get integer part
 #if __cpp_lib_int_pow2 == 202002L
     using std::bit_floor;
 #endif // __cpp_lib_int_pow2
     std::int32_t nPrevPowerOf2 = static_cast<std::int32_t>(bit_floor(nInvScaleFactor));
 
-    const SPrivateImaGLData* pSource = &source;
-    SPrivateImaGLData temp;
+    const CPrivateImaGLData* pSource = &source;
+    CPrivateImaGLData temp;
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+#endif // _ENABLE_MULTITHREAD
 
     //Brute mipmaping
     if (nPrevPowerOf2 > 1)
     {
-      temp.m_nHeight = pSource->m_nHeight / nPrevPowerOf2;
-      temp.m_nWidth = pSource->m_nWidth;
-      temp.m_nPixelSize = pSource->m_nPixelSize;
-      temp.m_PixelFormat = pSource->m_PixelFormat;
-      temp.m_PixelType = pSource->m_PixelType;
-      temp.m_vRawData = std::vector<std::byte>(temp.m_nHeight * temp.m_nWidth * temp.m_nPixelSize);
+      temp = CPrivateImaGLData(pSource->width(), pSource->height() / nPrevPowerOf2, pSource->pixelFormat(), pSource->pixelType());
 
-      const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->m_vRawData.data());
-      PixelType* destPixels = reinterpret_cast<PixelType*>(temp.m_vRawData.data());
+      const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
+      PixelType* destPixels = reinterpret_cast<PixelType*>(temp.data().data());
 
-      for (size_t destRow = 0; destRow < temp.m_nHeight; ++destRow)
-        for (size_t col = 0; col < temp.m_nWidth; ++col)
-        {
-          assert(destRow < temp.m_nHeight&& col < temp.m_nWidth);
-          PixelType* destPix = &destPixels[destRow * temp.m_nWidth + col];
-          typename PixelType::accum_type destPixelAccumulator;
-          for (size_t i = 0; i < nPrevPowerOf2; ++i)
+      auto mipmap_row_chunk = [&](size_t begin_row, size_t end_row) {
+        for (size_t destRow = begin_row; destRow < end_row; ++destRow)
+          for (size_t col = 0; col < temp.width(); ++col)
           {
-            size_t srcRow = destRow * nPrevPowerOf2 + i;
-            assert(srcRow < pSource->m_nHeight&& col < pSource->m_nWidth);
-            destPixelAccumulator += srcPixels[srcRow * pSource->m_nWidth + col];
+            assert(destRow < temp.height() && col < temp.width());
+            PixelType* destPix = &destPixels[destRow * temp.width() + col];
+            typename PixelType::accum_type destPixelAccumulator;
+            for (size_t i = 0; i < nPrevPowerOf2; ++i)
+            {
+              size_t srcRow = destRow * nPrevPowerOf2 + i;
+              assert(srcRow < pSource->height() && col < pSource->width());
+              destPixelAccumulator += srcPixels[srcRow * pSource->width() + col];
+            }
+            destPixelAccumulator /= nPrevPowerOf2;
+            *destPix = destPixelAccumulator;
           }
-          destPixelAccumulator /= nPrevPowerOf2;
-          *destPix = destPixelAccumulator;
-        }
+      };
+
+#ifdef _ENABLE_MULTITHREAD
+      const auto nNbRowsByThread = temp.height() / nNbThreads;
+      std::vector<std::thread> thread_pool(nNbThreads);
+      for (size_t i = 0; i < nNbThreads - 1; ++i)
+        thread_pool[i] = std::thread(mipmap_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+      thread_pool[nNbThreads - 1] = std::thread(mipmap_row_chunk, (nNbThreads - 1) * nNbRowsByThread, temp.height());
+      for (auto& th : thread_pool)
+        th.join();
+#else // _ENABLE_MULTITHREAD
+      mipmap_row_chunk(0, temp.height());
+#endif // _ENABLE_MULTITHREAD
 
       pSource = &temp;
     }
 
     //Linear Interpolation
-    dInvScaleFactor = (pSource->m_nHeight - 1) / (double)(dest.m_nHeight - 1);
-    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->m_vRawData.data());
-    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
+    dInvScaleFactor = (pSource->height() - 1) / (double)(dest.height() - 1);
+    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(pSource->data().data());
+    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t destRow = 0; destRow < dest.m_nHeight; ++destRow)
-      for (size_t col = 0; col < dest.m_nWidth; ++col)
-      {
-        assert(destRow < dest.m_nHeight&& col < dest.m_nWidth);
-        PixelType* destPix = &destPixels[destRow * dest.m_nWidth + col];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destRow * dInvScaleFactor;
-        size_t srcRow = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcRow;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t destRow = begin_row; destRow < end_row; ++destRow)
+        for (size_t col = 0; col < dest.width(); ++col)
         {
-          assert(srcRow < pSource->m_nHeight && col < pSource->m_nWidth);
-          *destPix = srcPixels[srcRow * pSource->m_nWidth + col];
-        }
-        else
-        {
-          assert(srcRow + 1 < pSource->m_nHeight && col < pSource->m_nWidth);
-          *destPix = srcPixels[srcRow * pSource->m_nWidth + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * pSource->m_nWidth + col] * (dDecimalPart);
-        }
-      }
+          assert(destRow < dest.height() && col < dest.width());
+          PixelType* destPix = &destPixels[destRow * dest.width() + col];
+          typename PixelType::accum_type destPixelAccumulator;
 
+          double dDecimalPart = destRow * dInvScaleFactor;
+          size_t srcRow = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcRow;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(srcRow < pSource->height() && col < pSource->width());
+            *destPix = srcPixels[srcRow * pSource->width() + col];
+          }
+          else
+          {
+            assert(srcRow + 1 < pSource->height() && col < pSource->width());
+            *destPix = srcPixels[srcRow * pSource->width() + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * pSource->width() + col] * (dDecimalPart);
+          }
+        }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
   _create_fnMap(t_downscale_y);
 
-  inline void downscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  inline void downscale_y(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth == dest.m_nWidth);
-    assert(source.m_nHeight > dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() == dest.width());
+    assert(source.height() > dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
     static auto fnMap = create_fnMap(t_downscale_y);
 
-    fnMap[fn_pixel_type_id(source.m_PixelFormat, source.m_PixelType)](source, dest);
+    fnMap[fn_pixel_type_id(source.pixelFormat(), source.pixelType())](source, dest);
   }
 
 
   template<typename PixelType>
-  void t_upscale_x(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  void t_upscale_x(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth < dest.m_nWidth);
-    assert(source.m_nHeight == dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() < dest.width());
+    assert(source.height() == dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
     //Linear Interpolation
-    double dInvScaleFactor = (source.m_nWidth - 1) / (double)(dest.m_nWidth - 1);
-    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.m_vRawData.data());
-    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
+    double dInvScaleFactor = (source.width() - 1) / (double)(dest.width() - 1);
+    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.data().data());
+    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t row = 0; row < dest.m_nHeight; ++row)
-      for (size_t destCol = 0; destCol < dest.m_nWidth; ++destCol)
-      {
-        assert(row < dest.m_nHeight && destCol < dest.m_nWidth);
-        PixelType* destPix = &destPixels[row * dest.m_nWidth + destCol];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destCol * dInvScaleFactor;
-        size_t srcCol = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcCol;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t row = begin_row; row < end_row; ++row)
+        for (size_t destCol = 0; destCol < dest.width(); ++destCol)
         {
-          assert(row < source.m_nHeight && srcCol < source.m_nWidth);
-          *destPix = srcPixels[row * source.m_nWidth + srcCol];
-        }
-        else
-        {
-          assert(row < source.m_nHeight && srcCol + 1 < source.m_nWidth);
-          *destPix = srcPixels[row * source.m_nWidth + srcCol] * (1 - dDecimalPart) + srcPixels[row * source.m_nWidth + srcCol + 1] * (dDecimalPart);
-        }
-      }
+          assert(row < dest.height() && destCol < dest.width());
+          PixelType* destPix = &destPixels[row * dest.width() + destCol];
+          typename PixelType::accum_type destPixelAccumulator;
 
+          double dDecimalPart = destCol * dInvScaleFactor;
+          size_t srcCol = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcCol;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(row < source.height() && srcCol < source.width());
+            *destPix = srcPixels[row * source.width() + srcCol];
+          }
+          else
+          {
+            assert(row < source.height() && srcCol + 1 < source.width());
+            *destPix = srcPixels[row * source.width() + srcCol] * (1 - dDecimalPart) + srcPixels[row * source.width() + srcCol + 1] * (dDecimalPart);
+          }
+        }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
   _create_fnMap(t_upscale_x);
 
-  inline void upscale_x(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  inline void upscale_x(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth < dest.m_nWidth);
-    assert(source.m_nHeight == dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() < dest.width());
+    assert(source.height() == dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
     static auto fnMap = create_fnMap(t_upscale_x);
 
-    fnMap[fn_pixel_type_id(source.m_PixelFormat, source.m_PixelType)](source, dest);
+    fnMap[fn_pixel_type_id(source.pixelFormat(), source.pixelType())](source, dest);
   }
 
   template<typename PixelType>
-  void t_upscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  void t_upscale_y(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth == dest.m_nWidth);
-    assert(source.m_nHeight < dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() == dest.width());
+    assert(source.height() < dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
     //Linear Interpolation
-    double dInvScaleFactor = (source.m_nHeight - 1) / (double)(dest.m_nHeight - 1);
-    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.m_vRawData.data());
-    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.m_vRawData.data());
+    double dInvScaleFactor = (source.height() - 1) / (double)(dest.height() - 1);
+    const PixelType* srcPixels = reinterpret_cast<const PixelType*>(source.data().data());
+    PixelType* destPixels = reinterpret_cast<PixelType*>(dest.data().data());
 
-    for (size_t destRow = 0; destRow < dest.m_nHeight; ++destRow)
-      for (size_t col = 0; col < dest.m_nWidth; ++col)
-      {
-        assert(destRow < dest.m_nHeight&& col < dest.m_nWidth);
-        PixelType* destPix = &destPixels[destRow * dest.m_nWidth + col];
-        typename PixelType::accum_type destPixelAccumulator;
-
-        double dDecimalPart = destRow * dInvScaleFactor;
-        size_t srcRow = static_cast<size_t>(dDecimalPart);
-        dDecimalPart = dDecimalPart - srcRow;
-
-        if (dDecimalPart == 0.0)
+    auto rescale_row_chunk = [&](size_t begin_row, size_t end_row) {
+      for (size_t destRow = begin_row; destRow < end_row; ++destRow)
+        for (size_t col = 0; col < dest.width(); ++col)
         {
-          assert(srcRow < source.m_nHeight && col < source.m_nWidth);
-          *destPix = srcPixels[srcRow * source.m_nWidth + col];
+          assert(destRow < dest.height() && col < dest.width());
+          PixelType* destPix = &destPixels[destRow * dest.width() + col];
+          typename PixelType::accum_type destPixelAccumulator;
+
+          double dDecimalPart = destRow * dInvScaleFactor;
+          size_t srcRow = static_cast<size_t>(dDecimalPart);
+          dDecimalPart = dDecimalPart - srcRow;
+
+          if (dDecimalPart == 0.0)
+          {
+            assert(srcRow < source.height() && col < source.width());
+            *destPix = srcPixels[srcRow * source.width() + col];
+          }
+          else
+          {
+            assert(srcRow + 1 < source.height() && col < source.width());
+            *destPix = srcPixels[srcRow * source.width() + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * source.width() + col] * (dDecimalPart);
+          }
         }
-        else
-        {
-          assert(srcRow + 1 < source.m_nHeight && col < source.m_nWidth);
-          *destPix = srcPixels[srcRow * source.m_nWidth + col] * (1 - dDecimalPart) + srcPixels[(srcRow + 1) * source.m_nWidth + col] * (dDecimalPart);
-        }
-      }
+    };
+
+#ifdef _ENABLE_MULTITHREAD
+    const auto nNbThreads = std::thread::hardware_concurrency();
+    const auto nNbRowsByThread = dest.height() / nNbThreads;
+    std::vector<std::thread> thread_pool(nNbThreads);
+    for (size_t i = 0; i < nNbThreads - 1; ++i)
+      thread_pool[i] = std::thread(rescale_row_chunk, i * nNbRowsByThread, (i + 1) * nNbRowsByThread);
+    thread_pool[nNbThreads - 1] = std::thread(rescale_row_chunk, (nNbThreads - 1) * nNbRowsByThread, dest.height());
+    for (auto& th : thread_pool)
+      th.join();
+#else // _ENABLE_MULTITHREAD
+    rescale_row_chunk(0, dest.height());
+#endif // _ENABLE_MULTITHREAD
 
   }
 
   _create_fnMap(t_upscale_y);
 
-  inline void upscale_y(const SPrivateImaGLData& source, SPrivateImaGLData& dest)
+  inline void upscale_y(const CPrivateImaGLData& source, CPrivateImaGLData& dest)
   {
-    assert(source.m_nWidth == dest.m_nWidth);
-    assert(source.m_nHeight < dest.m_nHeight);
-    assert(source.m_PixelFormat == dest.m_PixelFormat);
-    assert(source.m_PixelType == dest.m_PixelType);
-    assert(source.m_nPixelSize == dest.m_nPixelSize);
-    assert(dest.m_vRawData.size() == dest.m_nHeight * dest.m_nWidth * dest.m_nPixelSize);
-    assert(source.m_vRawData.size() == source.m_nHeight * source.m_nWidth * source.m_nPixelSize);
+    assert(source.width() == dest.width());
+    assert(source.height() < dest.height());
+    assert(source.pixelFormat() == dest.pixelFormat());
+    assert(source.pixelType() == dest.pixelType());
+    assert(source.pixelSize() == dest.pixelSize());
+    assert(dest.data().size() == dest.height() * dest.width() * dest.pixelSize());
+    assert(source.data().size() == source.height() * source.width() * source.pixelSize());
 
     static auto fnMap = create_fnMap(t_upscale_y);
 
-    fnMap[fn_pixel_type_id(source.m_PixelFormat, source.m_PixelType)](source, dest);
+    fnMap[fn_pixel_type_id(source.pixelFormat(), source.pixelType())](source, dest);
   }
 
 
