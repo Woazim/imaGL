@@ -9,6 +9,11 @@ target_sources(testProg PRIVATE ${testProg_SRC})
 if(STATIC_LIB)
     add_compile_definitions(IMAGL_STATIC)
 endif()
+if(ENABLE_MULTITHREAD)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    target_link_libraries(testProg Threads::Threads)
+endif()
 
 set_property(TARGET testProg PROPERTY CXX_STANDARD 20)
 

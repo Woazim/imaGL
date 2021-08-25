@@ -130,6 +130,9 @@ You can use cmake-gui or ccmake to configure your build. Possible options are:
 - STATIC_LIB
   - Build imaGL as a static (ON) or dynamic (OFF) library
   - Default OFF
+- ENABLE_MULTITHREAD
+  - Build ImaGL with multithread support
+  - Default ON
 - SUPPORT_PNG
   - Brings PNG format support to imaGL
   - Dependencies libPNG >= 1.6.37 / zlib 1.2.11
